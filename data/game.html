@@ -7,91 +7,164 @@
         background-color: grey
       }
       div {
-        display:block;
-        margin: 0px
+        display: inline-block
       }
+      
     </style>
   </head>
   <body>
-    <table id="game" width="100%">
-      <tr>
-        <td id="Player">
-          <div align="left">
-            <table id="playerUnits">
-              <tr v-for="item in playerCards">
-                <td style="width:100%">
-                  <div v-bind:style="{color: item.nameColor}">{{item.name}}</div><div style="background-color:black; width:100px; height:20px"> <div :style="item.style"> {{item.health}} </div></div>
-                <td>
-              </tr>
-            </table>
-          </div>
-        </td>
-        <td id="Enemy">
-          <table id="enemyUnits">
-            <tr v-for="item in enemyCards">
-              <td style="width:100%">
-                <span v-bind:style="{color: item.nameColor}">{{ item.name }}</span>
-              <td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
+    <div id="game" style="display:block">
+      <table width="100%">
+        <tr>
+         <td>
+           <div style="background-color:#FFFFFF; width:100px; height:20px">
+              <div v-bind:style="{height:'20px',width: data.playerMana.manaBarWidth, 'background-color': 'blue', color:'white'}" align="center"> {{ data.playerMana.mana }} </div>
+            </div>
+         </td>
+         <td></td>
+         <td></td>
+        </tr>
+        <tr>
+          <td id="playerHand">
+            <div style="align:right">
+              <table id="playerHand">
+                <tr v-for="item in data.playerHand">
+                  <td style="width:100%">
+                    <div v-bind:style="{color: item.nameColor, 'text-align': 'center'}">{{item.name}}</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+          <td id="Player">
+            <div style="align:center">
+              <table id="playerUnits">
+                <tr v-for="item in data.playerCards">
+                  <td style="width:100%">
+                    <div :style="{'background-color': item.health ? 'black' : 'grey', width:'100px', height:'20px'}">
+                      <div v-bind:style="item.style" align="center"> {{item.health}} </div>
+                    </div>
+                    <div v-bind:style="{color: item.nameColor, 'text-align': 'center'}">{{item.name}}</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </td>
+          <td id="Enemy"> 
+            <div style="float:right">
+              <table id="enemyUnits">
+                <tr v-for="item in data.enemyCards">
+                  <td style="width:100%;">
+                    <div v-bind:style="{color: item.nameColor, 'text-align': 'center'}">{{ item.name }}</div>
+                    <div style="background-color:black; width:100px; height:20px">
+                      <div v-bind:style="item.style" align="center"> {{item.health}} </div>
+                    </div>
+                  <td>
+                </tr>
+              </table>
+            </div>
+          </td>
+      </table>
+    </div>
     <script>
-      class Unit {
-        constructor(maxHealth, attack){
+      class Deck {
+        constructor(){
+          this.cards = {}
+          this.currentId = 0
+        }
+        addCards(...cards){
+          cards.forEach( (card)=>{
+            card.ID = this.currentId
+            this.cards[this.currentId] = card
+            this.currentId++
+          })
+        }
+      }
+      class Card {
+        constructor(maxHealth, attack, nameColor, manaCost, name){
           this.health = maxHealth
           this.maxHealth = maxHealth
           this.attack = attack
-      }
-      get style(){
-       return `width: ${this.health / this.maxHealth * 100}; background-color: ${this.barColor}; height: 20px`
-      }
-       get barColor(){
-         var r = 255 - (this.health/this.maxHealth) * 255
-      var g = (this.health/this.maxHealth) * 255
-      console.log( `rgb(${r}, ${g}, 0)`) 
-      return `rgb(${r}, ${g}, 0)`
-       }
-      }
-      class PlayerUnit extends Unit {
-        constructor(maxHealth, attack, nameColor, name){
-          super(maxHealth+50, attack + 50)
-          this.nameColor = nameColor || "green"
+          this.selected = false
+          this.nameColor = nameColor
+          this.manaCost = manaCost
           this.name = name
         }
-      }
-      class EnemyUnit extends Unit {
-        constructor(health, attack, nameColor, name){
-          super(health+50, attack + 50)
-          this.nameColor = nameColor || "red"
-          this.name = name
+        get style(){
+          return `width: ${this.health / this.maxHealth * 100}; background-color: ${this.barColor}; height: 20px`
+        }
+        get barColor(){
+          var r = 255 - (this.health/this.maxHealth) * 255
+          var g = (this.health/this.maxHealth) * 255
+          console.log( `rgb(${r}, ${g}, 0)`) 
+          return `rgb(${Math.floor(r)}, ${Math.floor(g)}, 0)`
+        }
+        get id(){
+          return enemy.indexOf(this)
         }
       }
-      class Angle extends PlayerUnit {
+      class ManaManager {
+        constructor(deck){
+          this.mana = 20
+          this.deck = deck
+        }
+        get maxMana(){
+          return 20 + Object.keys(this.deck.cards).map((item)=>{return this.deck.cards[item]}).map(function(i){return i instanceof Land}).filter(Boolean).length 
+        }
+        get manaBarWidth() {
+          return Math.floor(this.mana/this.maxMana*100)
+        }
+      }
+      class Land extends Card{
+        constructor(manaPerTurn, name, nameColor){
+          super(null, null, nameColor, 1, name)
+          this.manaPerTurn = manaPerTurn
+        }
+      }
+      class Mountain extends Land {
         constructor(){
-          super(50, 50, "gold", "Angle")
+          super(1, 'Mountain', 'LightSteelBlue')
+        }
+      }
+      class PlayerUnit extends Card {
+        constructor(maxHealth, attack, nameColor, name, manaCost){
+          super(maxHealth+50, attack + 20, nameColor, manaCost, name)
+        }
+      }
+      class EnemyUnit extends Card {
+        constructor(health, attack, nameColor, name, manaCost){
+          super(maxHealth+50, attack + 20, nameColor, manaCost, name)
+        }
+      }
+      class Angel extends PlayerUnit {
+        constructor(){
+          super(50, 10, "gold", "Angel")
         }
       }
       class Demon extends PlayerUnit {
         constructor(){
-          super(50, 50, "gold", "Demon")
+          super(50, 10, "gold", "Demon")
         }
       }
-      var playerCards = [new Angle],
-          enemyCards = [new Demon]
+      var playerDeck = new Deck,
+          enemyDeck = new Deck,
+          playerHand = new Deck,
+          playerManaManager = new ManaManager(playerDeck)
+      playerDeck.addCards(new Angel)
+      playerHand.addCards(new Mountain)
+      enemyDeck.addCards(new Demon)
       new Vue({
-        el: "#playerUnits",
+        el: "#game",
         data: {
-          playerCards: playerCards 
+          data: {
+          playerCards: playerDeck.cards,
+          enemyCards: enemyDeck.cards,
+          playerHand: playerHand.cards,
+          playerMana: playerManaManager,
+          playerCurrentCardId: playerDeck.currentId,
+          }
         }
       });
-      new Vue({
-        el: "#enemyUnits",
-        data: {
-          enemyCards: enemyCards
-        }
-      })
     </script>
   </body>
 </html>
