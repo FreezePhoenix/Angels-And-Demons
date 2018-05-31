@@ -1,0 +1,97 @@
+<html>
+  <head>
+    <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    <title>Angles & Demons</title>
+    <style>
+      body {
+        background-color: grey
+      }
+      div {
+        display:block;
+        margin: 0px
+      }
+    </style>
+  </head>
+  <body>
+    <table id="game" width="100%">
+      <tr>
+        <td id="Player">
+          <div align="left">
+            <table id="playerUnits">
+              <tr v-for="item in playerCards">
+                <td style="width:100%">
+                  <div v-bind:style="{color: item.nameColor}">{{item.name}}</div><div style="background-color:black; width:100px; height:20px"> <div :style="item.style"> {{item.health}} </div></div>
+                <td>
+              </tr>
+            </table>
+          </div>
+        </td>
+        <td id="Enemy">
+          <table id="enemyUnits">
+            <tr v-for="item in enemyCards">
+              <td style="width:100%">
+                <span v-bind:style="{color: item.nameColor}">{{ item.name }}</span>
+              <td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <script>
+      class Unit {
+        constructor(maxHealth, attack){
+          this.health = maxHealth
+          this.maxHealth = maxHealth
+          this.attack = attack
+      }
+      get style(){
+       return `width: ${this.health / this.maxHealth * 100}; background-color: ${this.barColor}; height: 20px`
+      }
+       get barColor(){
+         var r = 255 - (this.health/this.maxHealth) * 255
+      var g = (this.health/this.maxHealth) * 255
+      console.log( `rgb(${r}, ${g}, 0)`) 
+      return `rgb(${r}, ${g}, 0)`
+       }
+      }
+      class PlayerUnit extends Unit {
+        constructor(maxHealth, attack, nameColor, name){
+          super(maxHealth+50, attack + 50)
+          this.nameColor = nameColor || "green"
+          this.name = name
+        }
+      }
+      class EnemyUnit extends Unit {
+        constructor(health, attack, nameColor, name){
+          super(health+50, attack + 50)
+          this.nameColor = nameColor || "red"
+          this.name = name
+        }
+      }
+      class Angle extends PlayerUnit {
+        constructor(){
+          super(50, 50, "gold", "Angle")
+        }
+      }
+      class Demon extends PlayerUnit {
+        constructor(){
+          super(50, 50, "gold", "Demon")
+        }
+      }
+      var playerCards = [new Angle],
+          enemyCards = [new Demon]
+      new Vue({
+        el: "#playerUnits",
+        data: {
+          playerCards: playerCards 
+        }
+      });
+      new Vue({
+        el: "#enemyUnits",
+        data: {
+          enemyCards: enemyCards
+        }
+      })
+    </script>
+  </body>
+</html>
