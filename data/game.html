@@ -104,7 +104,7 @@
                 <tr v-for="item in data.enemyCards">
                   <td style="width:100px;">
                     <div class="card">
-                      <div v-bind:style="{'width':'100px',color: item.nameColor, 'text-align': 'center'}">{{ item.name }}</div>
+                      <div class="tag" v-bind:style="{width:'100px',color: item.selected ? data.lighterColors[item.nameColor] : (item.locked ? data.darkerColors[item.nameColor] : item.nameColor)}" :onclick="'enemyDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
                       <br v-if="item.health">
                       <div v-if="item.health" style="background-color:black; width:100px; height:20px">
                         <div v-bind:style="item.style" align="center"> {{item.health}} </div>
@@ -155,8 +155,25 @@
           this.isHand = isHand;
           this.manaManager = manaManager;
           this.enemy = [];
+          this.IDofCardSelected = -1
         }
-        
+        enableEnemyDeck(){
+          Object.keys(this.enemyDeck.cards).map(i=>this.enemyDeck.cards[i].ID).forEach( (cardID) => {
+            this.enemyDeck.cards[cardID].locked = false;
+          });
+        }
+        disableEnemyDeck(){
+          Object.keys(this.enemyDeck.cards).map(i=>this.enemyDeck.cards[i].ID).forEach( (cardID) => {
+            this.enemyDeck.cards[cardID].locked = true;
+          });
+        }
+        attack(){
+          var opponentCardID = this.enemyDeck.IDofCardSelected
+          var yourCardID = this.IDofCardSelected
+          this.enemyDeck.cards[opponentCardID].health -= this.cards[yourCardID].attack
+          
+          this.cards[yourCardID].health -= this.enemyDeck.cards[opponentCardID].attack
+        }
         addCards(...cards){
           cards.forEach( (card)=>{
             this.isHand ? card.inHand = true : false;
@@ -203,11 +220,8 @@
           this.decks = [playerDeck, enemyDeck]
           this.locked = false
         }
-        enableSelect(){
-
-        }
         onclick() {
-          console.log(this.manaCost === "N/A" ? 0 : this.manaCost)
+        console.log(Turn % 2 == !this.decks.indexOf(this.deck))
           if(this.inHand){
             if(confirm('Are you sure you want to summon this card?')) {
               this.hand.manaManager.mana -= this.manaCost == "N/A" ? 0 : this.manaCost;
@@ -216,27 +230,23 @@
               this.inHand = false
             }
           } else if(this.manaManager.mana >= (this.manaCost === "N/A" ? 0 : this.manaCost) && !(this instanceof Land)) {
-            switch(this.decks.indexOf(this.deck)) {
-              case 0:
-                if(Turn % 2 === 0) {
-                  if(!this.selected){
-                    this.deck.Lockdown(this)
-                    this.toggleSelected()
-                  } else {
-                    this.deck.Openup()
-                    this.toggleSelected()
-                  }
-                }
-                break;
-              case 1:
-                if(Turn % 2 === 1) {
-                  this.deck.Lockdown(this)
-                }
-                break;
-              default:
-                alert("Bad boy. You don't have a deck")
-            }
-          }
+            if(Turn % 2 == this.decks.indexOf(this.deck)) {
+              if(!this.selected){
+                this.deck.Lockdown(this);
+                this.toggleSelected();
+                this.deck.enableEnemyDeck();
+                this.deck.IDofCardSelected = this.ID
+              } else {
+                this.deck.Openup();
+                this.toggleSelected();
+                this.deck.disableEnemyDeck();
+              };
+            } else if(Turn % 2 == !this.decks.indexOf(this.deck)) {
+              this.deck.IDofCardSelected = this.ID
+              this.deck.attack()
+              console.log("\o/")
+            } 
+          } 
         }
         toggleSelected(){
           this.selected = !this.selected
@@ -313,6 +323,9 @@
           playerManaManager = playerHand.manaManager,
           enemyManaManager = enemyHand.manaManager
       playerDeck.manaManager = playerManaManager
+      enemyDeck.manaManager = enemyManaManager
+      playerDeck.enemyDeck = enemyDeck
+      enemyDeck.enemyDeck = playerDeck
       playerDeck.addCards(new Angel())
       playerHand.addCards(new Mountain(playerHand, playerDeck))
       enemyDeck.addCards(new Demon())
