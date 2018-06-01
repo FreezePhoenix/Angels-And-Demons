@@ -150,15 +150,17 @@
       var Turn = 0
       class Deck {
         constructor(isHand, manaManager){
-          this.cards = {}
-          this.currentId = 0
-          this.isHand = isHand
-          this.manaManager = manaManager
+          this.cards = {};
+          this.currentId = 0;
+          this.isHand = isHand;
+          this.manaManager = manaManager;
+          this.enemy = [];
         }
+        
         addCards(...cards){
           cards.forEach( (card)=>{
             this.isHand ? card.inHand = true : false;
-            card.ID = this.currentId;
+            card.ID = this.currentId;;
             this.cards[this.currentId] = card;
             this.currentId++;
           });
