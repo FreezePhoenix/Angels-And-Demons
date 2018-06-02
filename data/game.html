@@ -38,7 +38,6 @@
       }
       .card {
         width: 100%;
-        padding: 0 auto;
       }
     </style>
   </head>
@@ -66,9 +65,9 @@
                 <tr v-for="item in data.playerHand">
                   <td style="width:100px">
                     <div class="card">
-                      <div class="name" v-bind:style="{color: item.nameColor, 'text-align': 'center'}" class="cardName" :onclick="'playerHand.cards['+item.ID+'].onclick()'">{{item.name}}</div>
+                      <div class="name" v-bind:style="{color: item.nameColor, 'text-align': 'center'}" class="cardName" :onclick="'playerHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
                       <br>
-                      <div class="tag manaCost"> {{ item.manaCost }} </div>
+                      <div class="tag manaCost"> {{ item.summonCost }} </div>
                       <div class="tag attack"> {{ item.attack }} </div>
                       <div class="tag manaPerRound"> {{ item.manaPerTurn }} </div>
                     </div>
@@ -99,7 +98,7 @@
             </div>
           </td>
           <td>
-          <button onclick="nextTurn()">End turn.</button>
+            <button onclick="nextTurn()">End turn.</button>
           </td>
           <td id="Enemy"> 
             <div style="float:right">
@@ -128,9 +127,9 @@
                 <tr v-for="item in data.enemyHand">
                   <td style="width:100px">
                     <div class="card">
-                      <div class="name" v-bind:style="{'width':'100%',color: item.nameColor, 'text-align': 'center'}" class="cardName" :onclick="'enemyHand.cards['+item.ID+'].onclick()'">{{item.name}}</div>
+                      <div class="name" v-bind:style="{'width':'100%',color: item.nameColor, 'text-align': 'center'}" class="cardName" :onclick="'enemyHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
                       <br>
-                      <div class="tag manaCost"> {{ item.manaCost }} </div>
+                      <div class="tag manaCost"> {{ item.summonCost }} </div>
                       <div class="tag attack"> {{ item.attack }} </div>
                       <div class="tag manaPerRound"> {{ item.manaPerTurn }} </div>
                     </div>
@@ -144,24 +143,34 @@
     <script>
       function nextTurn(){
         Turn++
-        var newEnemyMana = enemyDeck.manaManager.mana + enemyDeck.manaManager.manaPerTurn,
-            newPlayerMana = playerDeck.manaManager.mana + playerDeck.manaManager.manaPerTurn
-        enemyDeck.manaManager.mana = newEnemyMana > enemyDeck.manaManager.maxMana ? enemyDeck.manaManager.maxMana : newEnemyMana
-        playerDeck.manaManager.mana = newPlayerMana > playerDeck.manaManager.maxMana ? playerDeck.manaManager.maxMana : newPlayerMana
+        if(Turn%2 === 0) {
+          var newEnemyMana = enemyDeck.manaManager.mana + enemyDeck.manaManager.manaPerTurn,
+              newPlayerMana = playerDeck.manaManager.mana + playerDeck.manaManager.manaPerTurn
+          enemyDeck.manaManager.mana = newEnemyMana > enemyDeck.manaManager.maxMana ? enemyDeck.manaManager.maxMana : newEnemyMana
+          playerDeck.manaManager.mana = newPlayerMana > playerDeck.manaManager.maxMana ? playerDeck.manaManager.maxMana : newPlayerMana
+        }
         Object.keys(playerDeck.cards).map(i=>playerDeck.cards[i].ID).forEach((cardID)=> {
-          playerDeck.cards[cardId].used = false
+          playerDeck.cards[cardID].used = false
+          playerDeck.cards[cardID].selected = false
+          playerDeck.cards[cardID].locked = false
+          playerDeck.IDofCardSelected = -1
         })
         Object.keys(enemyDeck.cards).map(i=>enemyDeck.cards[i].ID).forEach((cardID)=> {
-          enemyDeck.cards[cardId].used = false
+          enemyDeck.cards[cardID].used = false
+          enemyDeck.cards[cardID].selected = false
+          enemyDeck.cards[cardID].locked = false
+          enemyDeck.IDofCardSelected = -1
         })
       }
       var DarkerColors = {
         "Gold": "GoldenRod",
-        "LightSteelBlue": "SteelBlue"
+        "LightSteelBlue": "SteelBlue",
+        "Silver": "DarkGrey"
       }
       var LighterColors = {
         "Gold": "Yellow",
-        "LightSteelBlue": "LightSkyBlue"
+        "LightSteelBlue": "LightSkyBlue",
+        "Silver": "LightGrey"
       }
       var Turn = 0
       class Deck {
@@ -174,26 +183,37 @@
           this.IDofCardSelected = -1
         }
         enableEnemyDeck(){
-          Object.keys(this.enemyDeck.cards).map(i=>this.enemyDeck.cards[i].ID).forEach( (cardID) => {
+          this.enemyDeck.ArrayOfCardIDs.forEach( (cardID) => {
             this.enemyDeck.cards[cardID].locked = false;
           });
         }
         disableEnemyDeck(){
-          Object.keys(this.enemyDeck.cards).map(i=>this.enemyDeck.cards[i].ID).forEach( (cardID) => {
+          this.enemyDeck.ArrayOfCardIDs.forEach( (cardID) => {
             this.enemyDeck.cards[cardID].locked = true;
           });
+        }
+        get ArrayOfCards(){
+          return Object.keys(this.cards).map(ID=>this.cards[ID])
+        }
+        get ArrayOfCardIDs(){
+          return Object.keys(this.cards)
         }
         attack(){
           var opponentCardID = this.enemyDeck.IDofCardSelected
           var yourCardID = this.IDofCardSelected
           if(yourCardID+1 && opponentCardID+1 && !this.enemyDeck.cards[opponentCardID].used){  // the opponent is always the person who attacks.
-            this.enemyDeck.cards[opponentCardID].health -= this.cards[opponentCardID].attack
+            this.enemyDeck.cards[opponentCardID].health -= this.cards[yourCardID].attack
             this.cards[yourCardID].health -= this.enemyDeck.cards[opponentCardID].attack
             this.enemyDeck.cards[opponentCardID].used = true
             this.enemyDeck.cards[opponentCardID].selected = false
             this.enemyDeck.IDofCardSelected = -1
             this.IDofCardSelected = -1
             this.enemyDeck.manaManager.mana -= this.enemyDeck.cards[opponentCardID].manaCost
+            this.ArrayOfCards.forEach( (card) => {
+              if( card.health <= 0 ) {
+                this.removeCards(card)
+              }
+            })
           }
         }
         addCards(...cards){
@@ -219,7 +239,7 @@
             this.cards[item.ID].locked = false;
           });
         }
-        Openup(){
+        OpenUp(){
           Object.keys(this.cards).map(i=>this.cards[i].ID).forEach( (cardID) => {
             this.cards[cardID].locked = false;
           });
@@ -245,75 +265,81 @@
         }
         onclick() {
           console.log(Turn % 2 == !this.decks.indexOf(this.deck))
-          if(this.inHand){
-            if(confirm('Are you sure you want to summon this card?')) {
-              this.hand.manaManager.mana -= this.manaCost == "N/A" ? 0 : this.manaCost;
-              delete this.hand.cards[this.id];
-              this.deck.addCards(this);
-              this.inHand = false
-            }
-          } else if(this.manaManager.mana >= (this.manaCost === "N/A" ? 0 : this.manaCost) && !(this instanceof Land)) {
+          if(this.manaManager.mana >= (this.manaCost === "N/A" ? 0 : this.manaCost) && !(this instanceof Land)) {
             if(Turn % 2 == this.decks.indexOf(this.deck)) {
               if(!this.selected){
                 this.deck.Lockdown(this);
                 this.toggleSelected();
                 this.deck.enableEnemyDeck();
-                this.deck.IDofCardSelected = this.ID
-              } else if(this.selected) {
-                this.deck.Openup();
+                this.deck.IDofCardSelected = this.ID;
+              } else if ( this.selected ) {
                 this.toggleSelected();
+                this.deck.OpenUp();
                 this.deck.disableEnemyDeck();
-                this.deck.IDofCardSelected = -1
+                this.deck.IDofCardSelected = -1;
               };
             } else if(Turn % 2 == !this.decks.indexOf(this.deck)) {
-              this.deck.IDofCardSelected = this.ID
-              this.deck.attack()
-              console.log("\o/")
+              this.deck.IDofCardSelected = this.ID;
+              this.deck.attack();
+              this.deck.enemyDeck.OpenUp();
             } 
           } 
         }
-        toggleSelected(){
-          this.selected = !this.selected
+        summon() {
+          if( Turn % 2 === this.decks.indexOf(this.deck) ) {
+            if( confirm('Are you sure you want to summon this card?') ) {
+              this.hand.manaManager.mana -= this.summonCost == "N/A" ? 0 : this.summonCost;
+              delete this.hand.cards[this.id];
+              this.deck.addCards(this);
+              this.inHand = false;
+              this.used = true; // summoning sickness.
+            };
         }
-        get style(){
-          return `width: ${this.health / this.maxHealth * 100}; background-color: ${this.barColor}; height: 20px`
-        }
-        get barColor(){
-          var r = 255 - (this.health/this.maxHealth) * 255
-          var g = (this.health/this.maxHealth) * 255
-          return `rgb(${Math.floor(r)}, ${Math.floor(g)}, 0)`
-        }
-        get id(){
-          return this.ID
-        }
+      }
+      toggleSelected(){
+        this.selected = !this.selected;
+      }
+      get style(){
+        return `width: ${this.health / this.maxHealth * 100}; background-color: ${this.barColor}; height: 20px`
+      }
+      get barColor(){
+        var r = 255 - (this.health/this.maxHealth) * 255;
+        var g = (this.health/this.maxHealth) * 255;
+        return `rgb(${Math.floor(r)}, ${Math.floor(g)}, 0)`;
+      }
+      get id(){
+        // this is for me when i don't feel like hitting the shift key like i do right now.
+        return this.ID;
+      }
       }
       class ManaManager {
         constructor(deck){
-          this.mana = 20
-          this.deck = deck
+          this.mana = 20;
+          this.deck = deck;
         }
         get maxMana(){
           return 20 + Object.keys(this.deck.cards).map((item)=>{return this.deck.cards[item]}).map(function(i){return i instanceof Land}).filter(Boolean).length 
         }
         get manaBarWidth() {
-          return Math.floor(this.mana/this.maxMana*100)
+          return Math.floor(this.mana/this.maxMana*100);
         }
         get manaPerTurn(){
-        var result = 0
+          var result = 0
           Object.keys(this.deck.cards).map(i=>this.deck.cards[i]).forEach((card)=> {
-           result += card.manaPerTurn == "N/A" ? 0 : card.manaPerTurn
-          })
-          return result
+            result += card.manaPerTurn == "N/A" ? 0 : card.manaPerTurn;
+          });
+          return result;
         }
       }
       class Land extends Card{
         constructor(manaPerTurn, name, nameColor, inHand, hand, deck){
-          super(null, "N/A", nameColor, "N/A", name,deck.isHand, hand, deck, manaPerTurn)
+          super(null, "N/A", nameColor, "N/A", name,deck.isHand, hand, deck, manaPerTurn);
+          this.summonCost = 0
         }
       }
       class Stone extends Land {
         constructor(hand, deck, name) {
-          super(1, name, 'LightSteelBlue', deck.isHand, hand, deck)
+          super(1, name, 'LightSteelBlue', deck.isHand, hand, deck);
         }
       }
       class Mountain extends Stone {
@@ -327,24 +353,36 @@
         }
       }
       class PlayerUnit extends Card {
-        constructor(maxHealth, attack, nameColor, name, manaCost, hand=playerHand, deck=playerDeck, manaPerTurn="N/A",manaManager=playerManaManager, inHand=false){
+        constructor(summonCost, maxHealth, attack, nameColor, name, manaCost, hand=playerHand, deck=playerDeck, manaPerTurn="N/A",manaManager=playerManaManager, inHand=false){
           maxHealth = maxHealth || 20;
           super(maxHealth, attack, nameColor, manaCost, name, inHand, hand, deck, manaPerTurn);
+          this.summonCost = summonCost || 0
         }
       }
       class EnemyUnit extends Card {
-        constructor(maxHealth, attack, nameColor, name, manaCost, hand=enemyHand, deck=enemyDeck, manaPerTurn="N/A", manaManager=enemyManaManager, inHand=false){
-          super(maxHealth, attack, nameColor, manaCost, name, inHand, hand, deck, manaPerTurn)
+        constructor(summonCost, maxHealth, attack, nameColor, name, manaCost, hand=enemyHand, deck=enemyDeck, manaPerTurn="N/A", manaManager=enemyManaManager, inHand=false){
+          super(maxHealth, attack, nameColor, manaCost, name, inHand, hand, deck, manaPerTurn);
+          this.summonCost = summonCost
         }
       }
       class Angel extends PlayerUnit {
         constructor(hand, deck){
-          super(100, 10, "Gold", "Angel", 10, hand, deck)
+          super(10, 100, 10, "Gold", "Angel", 7, hand, deck);
+        }
+      }
+      class Paladin extends PlayerUnit {
+        constructor(hand, deck) {
+          super(5, 60, 5, "Silver", "Paladin", 4, hand, deck);
         }
       }
       class Demon extends EnemyUnit {
-        constructor(hand,deck){
-          super(100, 10, "Gold", "Demon", 10, hand, deck)
+        constructor(hand, deck){
+          super(10, 100, 10, "Gold", "Demon", 7, hand, deck);
+        }
+      }
+      class HellHound extends EnemyUnit {
+        constructor(hand, deck){
+          super(5, 60, 5, "Silver", "Hell Hound", 4, hand, deck);
         }
       }
       var playerDeck = new Deck(false),
@@ -352,15 +390,15 @@
           enemyHand = new Deck(true, new ManaManager(enemyDeck)),
           playerHand = new Deck(true, new ManaManager(playerDeck)),
           playerManaManager = playerHand.manaManager,
-          enemyManaManager = enemyHand.manaManager
-      playerDeck.manaManager = playerManaManager
-      enemyDeck.manaManager = enemyManaManager
-      playerDeck.enemyDeck = enemyDeck
-      enemyDeck.enemyDeck = playerDeck
-      playerDeck.addCards(new Angel())
-      playerHand.addCards(new Mountain(playerHand, playerDeck))
-      enemyDeck.addCards(new Demon())
-      enemyHand.addCards(new Ravine(enemyHand, enemyDeck))
+          enemyManaManager = enemyHand.manaManager;
+      playerDeck.manaManager = playerManaManager;
+      enemyDeck.manaManager = enemyManaManager;
+      playerDeck.enemyDeck = enemyDeck;
+      enemyDeck.enemyDeck = playerDeck;
+      playerDeck.addCards(new Paladin);
+      playerHand.addCards(new Mountain(playerHand, playerDeck), new Angel);
+      enemyDeck.addCards(new Demon());
+      enemyHand.addCards(new Ravine(enemyHand, enemyDeck));
       new Vue({
         el: "#game",
         data: {
@@ -368,9 +406,11 @@
             playerCards: playerDeck.cards,
             enemyCards: enemyDeck.cards,
             playerHand: playerHand.cards,
-            playerMana: playerManaManager,
             enemyHand: enemyHand.cards,
+
+            playerMana: playerManaManager,
             enemyMana: enemyManaManager,
+
             darkerColors: DarkerColors,
             lighterColors: LighterColors
           }
