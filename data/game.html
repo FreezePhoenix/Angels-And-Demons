@@ -98,6 +98,9 @@
               </table>
             </div>
           </td>
+          <td>
+          <button onclick="nextTurn()">End turn.</button>
+          </td>
           <td id="Enemy"> 
             <div style="float:right">
               <table id="enemyUnits">
@@ -139,6 +142,19 @@
       </table>
     </div>
     <script>
+      function nextTurn(){
+        Turn++
+        var newEnemyMana = enemyDeck.manaManager.mana + enemyDeck.manaManager.manaPerTurn,
+            newPlayerMana = playerDeck.manaManager.mana + playerDeck.manaManager.manaPerTurn
+        enemyDeck.manaManager.mana = newEnemyMana > enemyDeck.manaManager.maxMana ? enemyDeck.manaManager.maxMana : newEnemyMana
+        playerDeck.manaManager.mana = newPlayerMana > playerDeck.manaManager.maxMana ? playerDeck.manaManager.maxMana : newPlayerMana
+        Object.keys(playerDeck.cards).map(i=>playerDeck.cards[i].ID).forEach((cardID)=> {
+          playerDeck.cards[cardId].used = false
+        })
+        Object.keys(enemyDeck.cards).map(i=>enemyDeck.cards[i].ID).forEach((cardID)=> {
+          enemyDeck.cards[cardId].used = false
+        })
+      }
       var DarkerColors = {
         "Gold": "GoldenRod",
         "LightSteelBlue": "SteelBlue"
@@ -170,9 +186,15 @@
         attack(){
           var opponentCardID = this.enemyDeck.IDofCardSelected
           var yourCardID = this.IDofCardSelected
-          this.enemyDeck.cards[opponentCardID].health -= this.cards[yourCardID].attack
-          
-          this.cards[yourCardID].health -= this.enemyDeck.cards[opponentCardID].attack
+          if(yourCardID+1 && opponentCardID+1 && !this.enemyDeck.cards[opponentCardID].used){  // the opponent is always the person who attacks.
+            this.enemyDeck.cards[opponentCardID].health -= this.cards[opponentCardID].attack
+            this.cards[yourCardID].health -= this.enemyDeck.cards[opponentCardID].attack
+            this.enemyDeck.cards[opponentCardID].used = true
+            this.enemyDeck.cards[opponentCardID].selected = false
+            this.enemyDeck.IDofCardSelected = -1
+            this.IDofCardSelected = -1
+            this.enemyDeck.manaManager.mana -= this.enemyDeck.cards[opponentCardID].manaCost
+          }
         }
         addCards(...cards){
           cards.forEach( (card)=>{
@@ -188,7 +210,7 @@
           });
         }
         Lockdown(...cards){
-        console.log(this)
+          console.log(this)
           Object.keys(this.cards).map(i=>this.cards[i].id).forEach( (cardID) => {
             this.cards[cardID].locked = true;
             this.cards[cardID].selected = false;
@@ -219,9 +241,10 @@
           this.hand = hand
           this.decks = [playerDeck, enemyDeck]
           this.locked = false
+          this.used = false
         }
         onclick() {
-        console.log(Turn % 2 == !this.decks.indexOf(this.deck))
+          console.log(Turn % 2 == !this.decks.indexOf(this.deck))
           if(this.inHand){
             if(confirm('Are you sure you want to summon this card?')) {
               this.hand.manaManager.mana -= this.manaCost == "N/A" ? 0 : this.manaCost;
@@ -236,10 +259,11 @@
                 this.toggleSelected();
                 this.deck.enableEnemyDeck();
                 this.deck.IDofCardSelected = this.ID
-              } else {
+              } else if(this.selected) {
                 this.deck.Openup();
                 this.toggleSelected();
                 this.deck.disableEnemyDeck();
+                this.deck.IDofCardSelected = -1
               };
             } else if(Turn % 2 == !this.decks.indexOf(this.deck)) {
               this.deck.IDofCardSelected = this.ID
@@ -273,6 +297,13 @@
         }
         get manaBarWidth() {
           return Math.floor(this.mana/this.maxMana*100)
+        }
+        get manaPerTurn(){
+        var result = 0
+          Object.keys(this.deck.cards).map(i=>this.deck.cards[i]).forEach((card)=> {
+           result += card.manaPerTurn == "N/A" ? 0 : card.manaPerTurn
+          })
+          return result
         }
       }
       class Land extends Card{
