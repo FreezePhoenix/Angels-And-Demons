@@ -1,0 +1,16 @@
+class PlayerUnit extends Card {
+        constructor(summonCost, maxHealth, attack, nameColor, name, manaCost, hand=playerHand, deck=playerDeck, manaPerTurn="N/A",manaManager=playerManaManager, inHand=false){
+          super(maxHealth, attack, nameColor, manaCost, name, inHand, hand, deck, manaPerTurn);
+          this.summonCost = summonCost || 0
+        }
+      }
+      class Angel extends PlayerUnit {
+        constructor(hand, deck) {
+          super(10, 100, 10, "Gold", "Angel", 7, hand, deck);
+        }
+      }
+      class Paladin extends PlayerUnit {
+        constructor(hand, deck) {
+          super(5, 60, 5, "Silver", "Paladin", 4, hand, deck);
+  }
+}

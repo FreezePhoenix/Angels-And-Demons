@@ -1,0 +1,248 @@
+<html>
+  <head>
+    <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    <title>Angels & Demons</title>
+    <style>
+      body {
+        background-color: #222222
+      }
+      div {
+        display: inline-block;
+      }
+      .manaBar  {
+        height:20px;
+        background-color: Blue;
+        color: White;
+        
+      }
+      .tagList {
+        width:100%;
+        margin: 4 auto;
+      }
+      .tagList * {
+        width: 20%; 
+        height:20px;
+        color: White;
+        padding: 2%;
+        border-radius:4px;
+        text-align: center;
+      }
+      .tagList .manaCost {
+        background-color: MediumBlue;
+      }
+      .tagList .attack {
+        background-color: DarkRed;
+      }
+      .tagList .manaPerRound {
+        background-color: Blue
+      }
+      table {
+        display: inline-table;
+        width: 100%;
+      }
+      .health {
+         height: 20px;
+         text-align: center;
+      }
+      table#playerHand, table#playerUnits, table#enemyUnits, table#enemyHand, .card {
+        text-align: center;
+        width: 100%;
+      }
+      #turnStats, #turn {
+        text-align: center;
+      }
+    </style>
+    <script src="./data/BaseClasses.js"></script>
+    <script src="./data/Dark.js"></script>
+    <script src="./data/Light.js"></script>
+  </head>
+  <body>
+    <div id="game" style="display:block">
+      <table width="100%">
+        <tr>
+          <td>
+            <div style="background-color:#FFFFFF; width:100px; height:20px">
+              <div class="manaBar" v-bind:style="{height:'20px',width: data.playerMana.manaBarWidth, color:'white'}"> {{ data.playerMana.mana }} </div>
+            </div>
+          </td>
+          <td colspan="3"/>
+          <td>
+            <div style="float:right; background-color:#FFFFFF; width:100px; height:20px">
+              <div class="manaBar" v-bind:style="{'float':'right', width: data.enemyMana.manaBarWidth, 'background-color': 'blue', color:'white'}"> {{ data.enemyMana.mana }} </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td id="playerHand" >
+            <table id="playerHand">
+              <tr v-for="item in data.playerHand">
+                <td>
+                  <div class="card">
+                    <div class="name" v-bind:style="{color: item.nameColor, 'text-align': 'center'}" class="cardName" :onclick="'playerHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
+                    <br>
+                    <div class="tagList">
+                      <div class="manaCost"> {{ item.summonCost }} </div>
+                      <div class="attack"> {{ item.attack }} </div>
+                      <div class="manaPerRound"> {{ item.manaPerTurn }} </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td id="Player">
+            <table id="playerUnits">
+              <tr v-for="item in data.playerCards">
+                <td>
+                  <div class="card">
+                    <div class="tag" v-bind:style="{width:'100px',color: item.locked ? data.darkerColors[item.nameColor] : (item.selected ? data.lighterColors[item.nameColor] : item.nameColor)}" :onclick="'playerDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
+                    <br v-if="item.health">
+                    <div v-if="item.health" style="background-color:black; width:100px; height:20px">
+                      <div v-bind:style="item.style" align="center"> {{item.health}} </div>
+                    </div>
+                    <br>
+                    <div class="tagList">
+                      <div class="manaCost"> {{ item.manaCost }} </div>
+                      <div class="attack"> {{ item.attack }} </div>
+                      <div class="manaPerRound"> {{ item.manaPerTurn }} </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td id="turnStats">
+            <h3 id="turn"> Turn: {{ data.turnManager.turnNumber % 2 ? "Demons" : "Angels" }} </h3>
+            <button onclick="nextTurn()">End turn.</button>
+          </td>
+          <td id="Enemy">
+            <table id="enemyUnits">
+              <tr v-for="item in data.enemyCards">
+                <td>
+                  <div class="card">
+                    <div class="tag" v-bind:style="{width:'100px',color: item.locked ? data.darkerColors[item.nameColor] : (item.selected ? data.lighterColors[item.nameColor] : item.nameColor)}" :onclick="'enemyDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
+                    <br v-if="item.health">
+                    <div v-if="item.health" style="background-color:black; width:100px;" class="health">
+                      <div v-bind:style="item.style" class="health"> {{item.health}} </div>
+                    </div>
+                    <br>
+                    <div class="tagList">
+                      <div class="manaCost"> {{ item.manaCost }} </div>
+                      <div class="attack"> {{ item.attack }} </div>
+                      <div class="manaPerRound"> {{ item.manaPerTurn }} </div>
+                    </div>
+                  </div>
+                <td>
+              </tr>
+            </table>
+          </td>
+          <td id="enemyHand">
+            <table id="enemyHand">
+              <tr v-for="item in data.enemyHand">
+                <td>
+                  <div class="card">
+                    <div class="name" v-bind:style="{'width':'100%',color: item.nameColor, 'text-align': 'center'}" class="cardName" :onclick="'enemyHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
+                    <br>
+                    <div class="tagList">
+                      <div class="manaCost"> {{ item.summonCost }} </div>
+                      <div class="attack"> {{ item.attack }} </div>
+                      <div class="manaPerRound"> {{ item.manaPerTurn }} </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+      </table>
+    </div>
+    <script>
+      var turnManager = new TurnManager
+      function nextTurn(){
+        turnManager.nextTurn()
+        if( turnManager.turnNumber % 2 === 0 ) {
+          var newEnemyMana = enemyManaManager.mana + enemyManaManager.manaPerTurn,
+              newPlayerMana = playerDeck.manaManager.mana + playerDeck.manaManager.manaPerTurn
+          enemyDeck.manaManager.mana = newEnemyMana > enemyManaManager.maxMana ? enemyManaManager.maxMana : newEnemyMana
+          playerDeck.manaManager.mana = newPlayerMana > playerDeck.manaManager.maxMana ? playerDeck.manaManager.maxMana : newPlayerMana
+        }
+        Object.keys(playerDeck.cards).map(i=>playerDeck.cards[i].ID).forEach((cardID)=> {
+          playerDeck.cards[cardID].used = false
+          playerDeck.cards[cardID].selected = false
+          playerDeck.cards[cardID].locked = false
+          playerDeck.IDofCardSelected = -1
+        })
+        Object.keys(enemyDeck.cards).map(i=>enemyDeck.cards[i].ID).forEach((cardID)=> {
+          enemyDeck.cards[cardID].used = false
+          enemyDeck.cards[cardID].selected = false
+          enemyDeck.cards[cardID].locked = false
+          enemyDeck.IDofCardSelected = -1
+        })
+      }
+      var DarkerColors = {
+        "Gold": "GoldenRod",
+        "LightSteelBlue": "SteelBlue",
+        "Silver": "DarkGrey",
+        "Magenta": "Purple"
+      }
+      var LighterColors = {
+        "Gold": "Yellow",
+        "LightSteelBlue": "LightSkyBlue",
+        "Silver": "LightGrey"
+      }
+      var Turn = 0
+      class Land extends Card{
+        constructor(manaPerTurn, name, nameColor, inHand, hand, deck){
+          super(null, "N/A", nameColor, "N/A", name,deck.isHand, hand, deck, manaPerTurn);
+          this.summonCost = 0
+        }
+      }
+      class Stone extends Land {
+        constructor(hand, deck, name) {
+          super(1, name, 'LightSteelBlue', deck.isHand, hand, deck);
+        }
+      }
+      class Mountain extends Stone {
+        constructor(hand, deck){
+          super(hand, deck, "Mountain");
+        }
+      }
+      class Ravine extends Stone {
+        constructor(hand, deck){
+          super(hand, deck, "Ravine");
+        }
+      }
+      var playerDeck = new Deck(false),
+          enemyDeck = new Deck(false),
+          enemyHand = new Deck(true, new ManaManager(enemyDeck)),
+          playerHand = new Deck(true, new ManaManager(playerDeck)),
+          playerManaManager = playerHand.manaManager,
+          enemyManaManager = enemyHand.manaManager;
+      playerDeck.manaManager = playerManaManager;
+      enemyDeck.manaManager = enemyManaManager;
+      playerDeck.enemyDeck = enemyDeck;
+      enemyDeck.enemyDeck = playerDeck;
+      playerDeck.addCards(new Paladin);
+      playerHand.addCards(new Mountain(playerHand, playerDeck), new Angel);
+      enemyDeck.addCards(new Demon, new HellHound, new Cuthulu);
+      enemyHand.addCards(new Ravine(enemyHand, enemyDeck));
+      new Vue({
+        el: "#game",
+        data: {
+          data: {
+            playerCards: playerDeck.cards,
+            enemyCards: enemyDeck.cards,
+            playerHand: playerHand.cards,
+            enemyHand: enemyHand.cards,
+
+            playerMana: playerManaManager,
+            enemyMana: enemyManaManager,
+
+            darkerColors: DarkerColors,
+            lighterColors: LighterColors,
+            turnManager: turnManager
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
