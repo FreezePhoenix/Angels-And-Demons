@@ -131,7 +131,8 @@
     summon() {
       if(this.summonCost <= this.manaManager.mana && turnManager.turnNumber % 2 === this.decks.indexOf(this.deck)) {
         new Promise( (r) => {
-          this.toggleSelected();setTimeout(r,10);
+          this.toggleSelected();
+          r();
         }).then( () => {
           if( turnManager.turnNumber % 2 === this.decks.indexOf(this.deck) ) {
             if( confirm('Are you sure you want to summon this card?') ) {
