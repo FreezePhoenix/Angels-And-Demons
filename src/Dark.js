@@ -11,7 +11,7 @@ class Demon extends EnemyUnit {
 }
 class HellHound extends EnemyUnit {
   constructor(hand, deck) {
-    super(5, 60, 5, "Silver", "Hell Hound", 4, hand, deck);
+    super(5, 60, 5, "#C0C0C0", "Hell Hound", 4, hand, deck);
   }
 }
 /*
@@ -24,5 +24,10 @@ class Skeleton extends EnemyUnit {
 class Cuthulu extends Primal {
   constructor() {
     super(enemyHand, enemyDeck, "Cuthulu")
+  }
+}
+class ThornKnight extends EnemyUnit {
+  constructor(hand, deck) {
+    super(5, 20, 5, "#DF5F30", "Thorn Knight", 3, hand, deck)
   }
 }

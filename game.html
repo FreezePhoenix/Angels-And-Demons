@@ -3,13 +3,13 @@
     <script src="./lib/vue.js"></script>
     <title>Angels & Demons</title>
     <link rel="stylesheet" href="./data/styles.css">
-    <script src="./lib/BaseClasses.js"></script>
-    <script src="./lib/Dark.js"></script>
-    <script src="./lib/Light.js"></script>
-    <script src="./lib/Land.js" ></script>
+    <script src="./src/BaseClasses.js"></script>
+    <script src="./src/Dark.js"></script>
+    <script src="./src/Light.js"></script>
+    <script src="./src/Land.js" ></script>
     <script src="./data/DarkHand.js"></script>
     <script src="./data/LightHand.js"></script>
-    <script src="./lib/expandWeights.js"></script>
+    <script src="./src/expandWeights.js"></script>
   </head>
   <body>
     <div id="game" style="display:block">
@@ -33,7 +33,7 @@
               <tr v-for="item in playerHand">
                 <td>
                   <div class="card">
-                    <div class="name" v-bind:style="{color: item.nameColor, 'color': item.manaCost > playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" class="cardName" :onclick="'playerHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
+                    <div class="name" v-bind:style="{color: item.nameColor, 'color': item.summonCost >= playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" class="cardName" :onclick="'playerHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
                     <br>
                     <div class="tagList">
                       <div class="manaCost"> {{ item.summonCost }} </div>
@@ -50,7 +50,7 @@
               <tr v-for="item in playerCards">
                 <td>
                   <div class="card">
-                    <div class="tag" v-bind:style="{width:'100px',color: item.locked || item.used ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" :onclick="'playerDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
+                    <div class="tag" v-bind:style="{width:'100px',color: item.locked || item.used || item.summonCost > playerMana.mana || item.isLand ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" :onclick="'playerDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
                     <br v-if="item.health">
                     <div v-if="item.health" style="background-color:black; width:100px; height:20px">
                       <div v-bind:style="item.style" align="center"> {{item.health}} </div>
@@ -75,7 +75,7 @@
               <tr v-for="item in enemyCards">
                 <td>
                   <div class="card">
-                    <div class="tag" v-bind:style="{width:'100px',color: item.locked  || item.used || item.manaCost > playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" :onclick="'enemyDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
+                    <div class="tag" v-bind:style="{width:'100px',color: item.locked  || item.used || item.summonCost > enemyMana.mana || item.isLand ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" :onclick="'enemyDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
                     <br v-if="item.health">
                     <div v-if="item.health" style="background-color:black; width:100px;" class="health">
                       <div v-bind:style="item.style" class="health"> {{item.health}} </div>
@@ -133,9 +133,11 @@
           enemyWeights.splice(enemyWeights.indexOf(newCard),1)
         }
         Object.keys(playerDeck.cards).map(i=>playerDeck.cards[i].ID).forEach((cardID)=> {
-          playerDeck.cards[cardID].used = false
-          playerDeck.cards[cardID].selected = false
-          playerDeck.cards[cardID].locked = false
+          Object.assign(playerDeck.cards[cardID], {
+            used: false,
+            selected: false,
+            locked: false
+          })
           playerDeck.IDofCardSelected = -1
         })
         Object.keys(enemyDeck.cards).map(i=>enemyDeck.cards[i].ID).forEach((cardID)=> {
@@ -148,13 +150,16 @@
       const DarkerColors = {
         "Gold": "GoldenRod",
         "LightSteelBlue": "SteelBlue",
-        "Silver": "DarkGrey",
-        "Magenta": "Purple"
+        "#C0C0C0": "#A0A0A0",
+        "#DD00DD": "#BB00BB",  // magenta: darker
+        "#DF5F30": "#FF7F50"
       },
            LighterColors = {
         "Gold": "Yellow",
         "LightSteelBlue": "LightSkyBlue",
-        "Silver": "LightGrey"
+        "#C0C0C0": "#E0E0E0",
+        "#DD00DD": "#FF00FF ",
+        "#DF5F30": "#BF3F10"
       }
       var playerDeck = new Deck(false),
           enemyDeck = new Deck(false),

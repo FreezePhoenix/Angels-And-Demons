@@ -34,7 +34,7 @@
     attack(){
       var opponentCardID = this.enemyDeck.IDofCardSelected
       var yourCardID = this.IDofCardSelected
-      if(yourCardID+1 && opponentCardID+1 && !this.enemyDeck.cards[opponentCardID].used){  // the opponent is always the person who attacks.
+      if(yourCardID+1 && opponentCardID+1 && !this.enemyDeck.cards[opponentCardID].used && !this.cards[this.IDofCardSelected].isLand && !this.cards[this.IDofCardSelected].isPrimal){  // the opponent is always the person who attacks.
         this.enemyDeck.cards[opponentCardID].health -= this.cards[yourCardID].attack
         this.cards[yourCardID].health -= this.enemyDeck.cards[opponentCardID].attack
         this.enemyDeck.cards[opponentCardID].used = true
@@ -79,51 +79,57 @@
   }
   class Card {
     constructor(maxHealth, attack, nameColor, manaCost, name, inHand, hand, deck, manaPerTurn){
-      this.health = maxHealth
       Object.assign(this, {
         maxHealth: maxHealth,
         attack: attack,
         nameColor: nameColor,
-        manaCost: manaCost
-      })
-      this.name = name
-      this.inHand = inHand
-      this.deck = deck
-      this.manaManager = deck.manaManager
-      this.manaPerTurn = manaPerTurn
-      this.hand = hand
-      this.decks = [playerDeck, enemyDeck]
-      this.selected = false
-      this.locked = false
-      this.used = false
+        manaCost: manaCost,
+        name: name,
+        inHand: inHand,
+        deck: deck,
+        manaManager: deck.manaManager,
+        manaPerTurn: manaPerTurn,
+        hand: hand,
+        decks: [playerDeck, enemyDeck],
+        selected: false,
+        locked: false,
+        used: false,
+        health: maxHealth
+      });
+    }
+    get isLand() {
+      return this instanceof Land
+    }
+    get isPrimal() {
+      return this instanceof Primal
     }
     onclick() {
       if( !this.used ) {
-      if ( this.manaManager.mana >= (this.manaCost == "N/A" ? 0 : this.manaCost) && !(this instanceof Land)) {
-        if( turnManager.turnNumber % 2 == this.decks.indexOf(this.deck)) {
-          if( this instanceof Primal ) {
-            enemyWins()
-          } else if (!this.selected) {
-            this.deck.Lockdown(this);
-            this.toggleSelected();
-            this.deck.enableEnemyDeck();
-            this.deck.IDofCardSelected = this.ID;
-          } else if ( this.selected ) {
-            this.toggleSelected();
-            this.deck.OpenUp();
-            this.deck.disableEnemyDeck();
-            this.deck.IDofCardSelected = -1;
+        if( turnManager.turnNumber % 2 === this.decks.indexOf(this.deck)) {
+          if ( this.manaManager.mana >= (this.manaCost === "N/A" ? 0 : this.manaCost) && !(this instanceof Land)) {
+            if( this instanceof Primal ) {
+              enemyWins();
+            } else if (!this.selected) {
+              this.deck.Lockdown(this);
+              this.toggleSelected();
+              this.deck.enableEnemyDeck();
+              this.deck.IDofCardSelected = this.ID;
+            } else if ( this.selected ) {
+              this.toggleSelected();
+              this.deck.OpenUp();
+              this.deck.disableEnemyDeck();
+              this.deck.IDofCardSelected = -1;
+            };
           };
         } else if ( turnManager.turnNumber % 2 === Number(!this.decks.indexOf(this.deck)) ) {
           this.deck.IDofCardSelected = this.ID;
           this.deck.attack();
           this.deck.enemyDeck.OpenUp();
-        } 
-      };
+        };
       };
     }
     summon() {
-      if(this.summonCost <= this.manaManager.mana &&  turnManager.turnNumber % 2 == this.decks.indexOf(this.deck)) {
+      if(this.summonCost <= this.manaManager.mana && turnManager.turnNumber % 2 === this.decks.indexOf(this.deck)) {
         new Promise( (r) => {
           this.toggleSelected();setTimeout(r,10);
         }).then( () => {
@@ -178,7 +184,7 @@
   }
   class Primal extends Card {
     constructor(hand, deck, name) {
-      super(null, "N/A", "Magenta", 30, name, true, hand, deck, "N/A")
+      super(null, "N/A", "#DD00DD", 30, name, true, hand, deck, "N/A")
       this.summonCost = 0
     }
   }
