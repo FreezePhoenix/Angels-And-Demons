@@ -1,12 +1,15 @@
 <html>
   <head>
-    <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    <script src="./lib/vue.js"></script>
     <title>Angels & Demons</title>
     <link rel="stylesheet" href="./data/styles.css">
-    <script src="./data/BaseClasses.js"></script>
-    <script src="./data/Dark.js"></script>
-    <script src="./data/Light.js"></script>
-    <script src="./data/Land.js" ></script>
+    <script src="./lib/BaseClasses.js"></script>
+    <script src="./lib/Dark.js"></script>
+    <script src="./lib/Light.js"></script>
+    <script src="./lib/Land.js" ></script>
+    <script src="./data/DarkHand.js"></script>
+    <script src="./data/LightHand.js"></script>
+    <script src="./lib/expandWeights.js"></script>
   </head>
   <body>
     <div id="game" style="display:block">
@@ -93,7 +96,7 @@
               <tr v-for="item in enemyHand">
                 <td>
                   <div class="card">
-                    <div class="name" v-bind:style="{'width':'100%',color: item.nameColor,  'color': item.summonCost >= playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? data.lighterColors[item.nameColor] : item.nameColor)}" class="cardName" :onclick="'enemyHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
+                    <div class="name" v-bind:style="{'width':'100%',color: item.nameColor,  'color': item.summonCost >= playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" class="cardName" :onclick="'enemyHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
                     <br>
                     <div class="tagList">
                       <div class="manaCost"> {{ item.summonCost }} </div>
@@ -108,14 +111,26 @@
       </table>
     </div>
     <script>
+      enemyWeights = expandWeights(enemyWeights);
+      playerWeights = expandWeights(playerWeights);
       const turnManager = new TurnManager
+      function getRandomItem(array){
+        return array[Math.floor(Math.random()*array.length)]
+      }
       function nextTurn(){
         turnManager.nextTurn()
         if( turnManager.turnNumber % 2 === 0 ) {
-          let newEnemyMana = enemyManaManager.mana + enemyManaManager.manaPerTurn,
-              newPlayerMana = playerDeck.manaManager.mana + playerDeck.manaManager.manaPerTurn
-          enemyDeck.manaManager.mana = newEnemyMana > enemyManaManager.maxMana ? enemyManaManager.maxMana : newEnemyMana
+          let newPlayerMana = playerDeck.manaManager.mana + playerDeck.manaManager.manaPerTurn
           playerDeck.manaManager.mana = newPlayerMana > playerDeck.manaManager.maxMana ? playerDeck.manaManager.maxMana : newPlayerMana
+          var newCard = getRandomItem(playerWeights)
+          playerHand.addCards(new newCard(playerHand, playerDeck))
+          playerWeights.splice(playerWeights.indexOf(newCard),1)
+        } else if ( turnManager.turnNumber % 2 === 1 ) {
+          let newEnemyMana = enemyManaManager.mana + enemyManaManager.manaPerTurn
+          enemyDeck.manaManager.mana = newEnemyMana > enemyManaManager.maxMana ? enemyManaManager.maxMana : newEnemyMana
+          var newCard = getRandomItem(enemyWeights)
+          enemyHand.addCards(new newCard(enemyHand, enemyDeck))
+          enemyWeights.splice(enemyWeights.indexOf(newCard),1)
         }
         Object.keys(playerDeck.cards).map(i=>playerDeck.cards[i].ID).forEach((cardID)=> {
           playerDeck.cards[cardID].used = false
@@ -152,8 +167,8 @@
       playerDeck.enemyDeck = enemyDeck;
       enemyDeck.enemyDeck = playerDeck;
       playerDeck.addCards(new Paladin);
-      playerHand.addCards(new Mountain(playerHand, playerDeck), new Angel);
-      enemyDeck.addCards(new Demon, new HellHound, new Cuthulu);
+      playerHand.addCards(new Mountain(playerHand, playerDeck));
+      enemyDeck.addCards(new HellHound);
       enemyHand.addCards(new Ravine(enemyHand, enemyDeck));
       enemyDeck.Lockdown()
       
