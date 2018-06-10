@@ -130,6 +130,7 @@
     }
     summon() {
       if(this.summonCost <= this.manaManager.mana && turnManager.turnNumber % 2 === this.decks.indexOf(this.deck)) {
+<<<<<<< HEAD
         this.toggleSelected();
         if( turnManager.turnNumber % 2 === this.decks.indexOf(this.deck) ) {
           if( confirm('Are you sure you want to summon this card?') ) {
@@ -138,6 +139,20 @@
             this.deck.addCards(this);
             this.inHand = false;
             this.used = true; // summoning sickness.
+=======
+        new Promise( (r) => {
+          this.toggleSelected();
+          r();
+        }).then( () => {
+          if( turnManager.turnNumber % 2 === this.decks.indexOf(this.deck) ) {
+            if( confirm('Are you sure you want to summon this card?') ) {
+              this.hand.manaManager.mana -= this.summonCost === "N/A" ? 0 : this.summonCost;
+              delete this.hand.cards[this.id];
+              this.deck.addCards(this);
+              this.inHand = false;
+              this.used = true; // summoning sickness.
+            };
+>>>>>>> b2ce910d3485561fafc402611f01902fc69dd91a
           };
         };
       }

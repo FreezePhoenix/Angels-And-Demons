@@ -33,7 +33,7 @@
               <tr v-for="item in playerHand">
                 <td>
                   <div class="card">
-                    <div class="name" v-bind:style="{color: item.nameColor, 'color': item.summonCost >= playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" class="cardName" :onclick="'playerHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
+                    <div class="name" v-bind:style="{color: item.nameColor, 'cursor': item.summonCost <= playerMana.mana && turnManager.turnNumber %2 === 0 ? 'pointer' : 'default', 'color': item.summonCost > playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" class="cardName" :onclick="'playerHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
                     <br>
                     <div class="tagList">
                       <div class="manaCost"> {{ item.summonCost }} </div>
@@ -50,7 +50,7 @@
               <tr v-for="item in playerCards">
                 <td>
                   <div class="card">
-                    <div class="tag" v-bind:style="{width:'100px',color: item.locked || item.used || item.summonCost > playerMana.mana || item.isLand ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" :onclick="'playerDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
+                    <div class="name" v-bind:style="{'cursor': item.summonCost <= playerMana.mana && !item.locked && !item.used  && turnManager.turnNumber %2 === 0 ? 'pointer' : 'default', 'width': '100px',color: item.locked || item.used || item.summonCost > playerMana.mana || item.isLand ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" :onclick="'playerDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
                     <br v-if="item.health">
                     <div v-if="item.health" style="background-color:black; width:100px; height:20px">
                       <div v-bind:style="item.style" align="center"> {{item.health}} </div>
@@ -75,7 +75,7 @@
               <tr v-for="item in enemyCards">
                 <td>
                   <div class="card">
-                    <div class="tag" v-bind:style="{width:'100px',color: item.locked  || item.used || item.summonCost > enemyMana.mana || item.isLand ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" :onclick="'enemyDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
+                    <div class="name" v-bind:style="{'cursor': item.summonCost <= playerMana.mana && !item.locked && !item.used  && turnManager.turnNumber %2 === 1 ? 'pointer' : 'default', 'width':'100px',color: item.locked  || item.used || item.summonCost > enemyMana.mana || item.isLand ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" :onclick="'enemyDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
                     <br v-if="item.health">
                     <div v-if="item.health" style="background-color:black; width:100px;" class="health">
                       <div v-bind:style="item.style" class="health"> {{item.health}} </div>
@@ -96,7 +96,7 @@
               <tr v-for="item in enemyHand">
                 <td>
                   <div class="card">
-                    <div class="name" v-bind:style="{'width':'100%',color: item.nameColor,  'color': item.summonCost >= playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" class="cardName" :onclick="'enemyHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
+                    <div class="name" v-bind:style="{'cursor': item.summonCost <= playerMana.mana  && turnManager.turnNumber %2 === 1 ? 'pointer' : 'default', 'width':'100%',color: item.nameColor,  'color': item.summonCost >= playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" class="cardName" :onclick="'enemyHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
                     <br>
                     <div class="tagList">
                       <div class="manaCost"> {{ item.summonCost }} </div>
