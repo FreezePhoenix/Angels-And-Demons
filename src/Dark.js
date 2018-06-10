@@ -6,7 +6,7 @@ class EnemyUnit extends Card {
 }
 class Demon extends EnemyUnit {
   constructor(hand, deck) {
-    super(10, 100, 10, "Gold", "Demon", 7, hand, deck);
+    super(10, 100, 10, "#DFB720", "Demon", 7, hand, deck);
   }
 }
 class HellHound extends EnemyUnit {

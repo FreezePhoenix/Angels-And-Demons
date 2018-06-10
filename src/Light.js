@@ -4,9 +4,14 @@ class PlayerUnit extends Card {
     this.summonCost = summonCost || 0
   }
 }
+class EternalFlame extends Primal {
+  constructor() {
+    super(playerHand, playerDeck, "Eternal Flame")
+  }
+}
 class Angel extends PlayerUnit {
   constructor(hand, deck) {
-    super(10, 100, 10, "Gold", "Angel", 7, hand, deck);
+    super(10, 100, 10, "#DFB720", "Angel", 7, hand, deck);
   }
 }
 class Paladin extends PlayerUnit {
