@@ -8,12 +8,26 @@
   }
   class Deck {
     constructor(isHand, manaManager){
-      this.cards = {};
-      this.currentId = 0;
-      this.isHand = isHand;
-      this.manaManager = manaManager;
-      this.enemy = [];
-      this.IDofCardSelected = -1
+      Object.assign(this, {
+        cards: Object.setPrototypeOf({}, null),
+        currentId: 0,
+        isHand: isHand,
+        manaManager: manaManager,
+        enemy: [],
+        selectedCardID: -1
+      })
+      if(manaManager){
+       this.hand = this.isHand ? this : this.manaManager.deck
+       this.deck = this.isHand ? this.manaManager.deck : this
+      }
+    }
+    addCardFromWeights(weights){
+      var newCard = getRandomItem(weights)
+      this.addCards(new newCard(this.hand, this.deck))
+      weights.splice(weights.indexOf(newCard),1)
+    }
+    get selectedCard(){
+      return this.cards[this.selectedCardID]
     }
     enableEnemyDeck(){
       this.enemyDeck.ArrayOfCardIDs.forEach( (cardID) => {
@@ -26,40 +40,47 @@
       });
     }
     get ArrayOfCards(){
-      return Object.keys(this.cards).map(ID=>this.cards[ID])
+      return Object.values(this.cards);
     }
     get ArrayOfCardIDs(){
-      return Object.keys(this.cards)
-    }
+      return Object.keys(this.cards);
+    };
     attack(){
-      var opponentCardID = this.enemyDeck.IDofCardSelected
-      var yourCardID = this.IDofCardSelected
-      if(yourCardID+1 && opponentCardID+1 && !this.enemyDeck.cards[opponentCardID].used && !this.cards[this.IDofCardSelected].isLand && !this.cards[this.IDofCardSelected].isPrimal){  // the opponent is always the person who attacks.
-        this.enemyDeck.cards[opponentCardID].health -= this.cards[yourCardID].attack
-        this.cards[yourCardID].health -= this.enemyDeck.cards[opponentCardID].attack
-        this.enemyDeck.cards[opponentCardID].used = true
-        this.enemyDeck.cards[opponentCardID].selected = false
-        this.enemyDeck.IDofCardSelected = -1
-        this.IDofCardSelected = -1
-        this.enemyDeck.manaManager.mana -= this.enemyDeck.cards[opponentCardID].manaCost
+      // the opponent is always the person who attacks.
+      
+      var opponentCardID = this.enemyDeck.selectedCardID,
+          opponentCard = this.enemyDeck.selectedCard,
+          yourCardID = this.selectedCardID,
+          yourCard = this.selectedCard
+      
+      if(yourCardID + 1 && opponentCardID + 1 && !opponentCard.used && !this.isLand && !this.isPrimal){
+        opponentCard.health -= yourCard.attack;
+        yourCard.health -= opponentCard.attack;
+        Object.assign(opponentCard, {
+          used: true,
+          selected: false
+        });
+        this.enemyDeck.IDofCardSelected = -1;
+        this.IDofCardSelected = -1;
+        this.enemyDeck.manaManager.mana -= opponentCard.manaCost;
         this.ArrayOfCards.forEach( (card) => {
           if( card.health <= 0 && card.health !== null ) {
-            this.removeCards(card)
-          }
-        })
+            this.removeCards(card);
+          };
+        });
       }
-    }
+    };
     addCards(...cards){
-      cards.forEach( (card)=>{
+      cards.forEach( (card) => {
         this.isHand ? card.inHand = true : card.inHand = false;
-        card.ID = this.currentId;;
+        card.ID = this.currentId;
         this.cards[this.currentId] = card;
         this.currentId++;
       });
-    }
+    };
     removeCards(...cards){
-      cards.forEach((card)=>{
-        delete this.cards[card.ID]
+      cards.forEach( (card) => {
+        delete this.cards[card.ID];
       });
     }
     Lockdown(...cards){
@@ -80,79 +101,59 @@
   class Card {
     constructor(maxHealth, attack, nameColor, manaCost, name, inHand, hand, deck, manaPerTurn){
       Object.assign(this, {
-        maxHealth: maxHealth,
-        attack: attack,
+        maxHealth: maxHealth, health: maxHealth,
+        attack: attack, name: name,
         nameColor: nameColor,
-        manaCost: manaCost,
-        name: name,
-        inHand: inHand,
-        deck: deck,
-        manaManager: deck.manaManager,
-        manaPerTurn: manaPerTurn,
-        hand: hand,
-        decks: [playerDeck, enemyDeck],
-        selected: false,
-        locked: false,
-        used: false,
-        health: maxHealth
+        inHand: inHand, deck: deck,
+        manaCost: manaCost, manaManager: deck.manaManager, manaPerTurn: manaPerTurn,
+        hand: hand, decks: [playerDeck, enemyDeck],
+        selected: false, locked: false, used: false
       });
     }
     get isLand() {
-      return this instanceof Land
+      return this instanceof Land;
     }
     get isPrimal() {
-      return this instanceof Primal
+      return this instanceof Primal;
     }
     onclick() {
       if( !this.used ) {
         if( turnManager.turnNumber % 2 === this.decks.indexOf(this.deck)) {
-          if ( this.manaManager.mana >= (this.manaCost === "N/A" ? 0 : this.manaCost) && !(this instanceof Land)) {
+          if ( this.manaManager.mana >= (this.manaCost === "N/A" ? 0 : this.manaCost) && !this.isLand ) {
             if( this instanceof Primal ) {
               enemyWins();
             } else if (!this.selected) {
               this.deck.Lockdown(this);
               this.toggleSelected();
               this.deck.enableEnemyDeck();
-              this.deck.IDofCardSelected = this.ID;
+              this.deck.selectedCardID = this.ID;
             } else if ( this.selected ) {
               this.toggleSelected();
               this.deck.OpenUp();
               this.deck.disableEnemyDeck();
-              this.deck.IDofCardSelected = -1;
+              this.deck.selectedCardID = -1;
             };
           };
         } else if ( turnManager.turnNumber % 2 === Number(!this.decks.indexOf(this.deck)) ) {
-          this.deck.IDofCardSelected = this.ID;
+          this.deck.selectedCardID = this.ID;
           this.deck.attack();
           this.deck.enemyDeck.OpenUp();
+          
+              this.toggleSelected();
         };
       };
     }
     summon() {
       if(this.summonCost <= this.manaManager.mana && turnManager.turnNumber % 2 === this.decks.indexOf(this.deck)) {
-<<<<<<< HEAD
-        this.toggleSelected();
         if( turnManager.turnNumber % 2 === this.decks.indexOf(this.deck) ) {
           if( confirm('Are you sure you want to summon this card?') ) {
             this.hand.manaManager.mana -= this.summonCost === "N/A" ? 0 : this.summonCost;
             delete this.hand.cards[this.id];
+            Object.assign(this, {
+              inHand: false,
+              used: true // summoning sickness
+            });
             this.deck.addCards(this);
-            this.inHand = false;
-            this.used = true; // summoning sickness.
-=======
-        new Promise( (r) => {
-          this.toggleSelected();
-          r();
-        }).then( () => {
-          if( turnManager.turnNumber % 2 === this.decks.indexOf(this.deck) ) {
-            if( confirm('Are you sure you want to summon this card?') ) {
-              this.hand.manaManager.mana -= this.summonCost === "N/A" ? 0 : this.summonCost;
-              delete this.hand.cards[this.id];
-              this.deck.addCards(this);
-              this.inHand = false;
-              this.used = true; // summoning sickness.
-            };
->>>>>>> b2ce910d3485561fafc402611f01902fc69dd91a
           };
         };
       }
@@ -178,18 +179,25 @@
       this.deck = deck;
     }
     get maxMana(){
-      return 20 + this.deck.ArrayOfCards.map(function(i){return (i instanceof Land) ? i.manaPerTurn : 0 }).reduce((a,b)=>a+b) 
+      return 20 + this.deck.ArrayOfCards.map( (i) => (i instanceof Land ? i.manaPerTurn : 0) ).reduce( (totalManaPerTurn,cardManaPerTurn) => {
+        return totalManaPerTurn + cardManaPerTurn
+      }); 
     }
     get manaBarWidth() {
       return Math.floor(this.mana/this.maxMana*100);
     }
     get manaPerTurn(){
-      var result = 0
-      Object.keys(this.deck.cards).map(i=>this.deck.cards[i]).forEach((card)=> {
-        result += card.manaPerTurn == "N/A" ? 0 : card.manaPerTurn;
-      });
-      return result;
+      var result = this.deck.ArrayOfCards.reduce( (accumulator, card) => { 
+        return accumulator + (card.manaPerTurn === "N/A" ? 0 : card.manaPerTurn);
+      }, 0);
+      return result
     }
+    set manaGain(mana) {
+      this.mana += mana
+      if(this.mana > this.maxMana) {
+        this.mana = this.maxMana
+      };
+    } 
   }
   class Primal extends Card {
     constructor(hand, deck, name) {

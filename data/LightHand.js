@@ -1,5 +1,5 @@
 var playerWeights = [
-  [Cuthulu, 1],
+  [EternalFlame, 1],
   [Angel, 3],
   [Mountain, 10],
   [Paladin, 8],
