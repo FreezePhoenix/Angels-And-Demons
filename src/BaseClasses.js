@@ -10,12 +10,16 @@
     constructor(isHand, manaManager){
       Object.assign(this, {
         cards: Object.setPrototypeOf({}, null),
-        currentId: 0,
+        currentId: 1,
         isHand: isHand,
         manaManager: manaManager,
         enemy: [],
         selectedCardID: -1
-      })
+      });
+      Object.defineProperty(this.cards, 0, {
+        value: [],
+        writable: false
+      });
       if(manaManager){
        this.hand = this.isHand ? this : this.manaManager.deck
        this.deck = this.isHand ? this.manaManager.deck : this
@@ -120,15 +124,14 @@
       if( !this.used ) {
         if( turnManager.turnNumber % 2 === this.decks.indexOf(this.deck)) {
           if ( this.manaManager.mana >= (this.manaCost === "N/A" ? 0 : this.manaCost) && !this.isLand ) {
+            this.toggleSelected();
             if( this instanceof Primal ) {
               enemyWins();
             } else if (!this.selected) {
               this.deck.Lockdown(this);
-              this.toggleSelected();
               this.deck.enableEnemyDeck();
               this.deck.selectedCardID = this.ID;
             } else if ( this.selected ) {
-              this.toggleSelected();
               this.deck.OpenUp();
               this.deck.disableEnemyDeck();
               this.deck.selectedCardID = -1;
@@ -156,7 +159,7 @@
             this.deck.addCards(this);
           };
         };
-      }
+      };
     }
     toggleSelected(){
       this.selected = !this.selected;

@@ -30,7 +30,7 @@
         <tr>
           <td id="playerHand" >
             <table id="playerHand">
-              <tr v-for="item in playerHand">
+              <tr v-for="item of playerHand">
                 <td>
                   <div class="card">
                     <div class="name" v-bind:style="{'color': item.summonCost >= playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" class="cardName" :onclick="'playerHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
