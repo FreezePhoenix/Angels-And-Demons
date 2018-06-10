@@ -1,6 +1,6 @@
 class Stone extends Land {
   constructor(hand, deck, name) {
-    super(1, name, 'LightSteelBlue', deck.isHand, hand, deck);
+    super(1, name, '#B0C4DE', deck.isHand, hand, deck);
   }
 };
 class Mountain extends Stone {

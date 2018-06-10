@@ -58,22 +58,22 @@
           yourCardID = this.selectedCardID,
           yourCard = this.selectedCard
       
-      if(yourCardID + 1 && opponentCardID + 1 && !opponentCard.used && !this.isLand && !this.isPrimal){
+      if( yourCardID + 1 && opponentCardID + 1 && !opponentCard.used && !this.isLand && !this.isPrimal ){
         opponentCard.health -= yourCard.attack;
         yourCard.health -= opponentCard.attack;
         Object.assign(opponentCard, {
           used: true,
           selected: false
         });
-        this.enemyDeck.IDofCardSelected = -1;
-        this.IDofCardSelected = -1;
+        this.enemyDeck.selectedCardID = -1;
+        this.selectedCardID = -1;
         this.enemyDeck.manaManager.mana -= opponentCard.manaCost;
         this.ArrayOfCards.forEach( (card) => {
           if( card.health <= 0 && card.health !== null ) {
             this.removeCards(card);
           };
         });
-      }
+      };
     };
     addCards(...cards){
       cards.forEach( (card) => {
@@ -85,9 +85,9 @@
     };
     removeCards(...cards){
       cards.forEach( (card) => {
-        this.cards[card.ID] = [];
+        delete this.cards[card.ID];
       });
-    }
+    };
     Lockdown(...cards){
       this.ArrayOfCardIDs.forEach( (cardID) => {
         this.cards[cardID].locked = true;
@@ -96,13 +96,13 @@
       cards.forEach( (item) => {
         this.cards[item.ID].locked = false;
       });
-    }
+    };
     OpenUp(){
       this.ArrayOfCardIDs.forEach( (cardID) => {
         this.cards[cardID].locked = false;
       });
-    }
-  }
+    };
+  };
   class Card {
     constructor(maxHealth, attack, nameColor, manaCost, name, inHand, hand, deck, manaPerTurn){
       Object.assign(this, {
@@ -114,18 +114,21 @@
         hand: hand, decks: [playerDeck, enemyDeck],
         selected: false, locked: false, used: false
       });
-    }
+    };
+    get isDecksTurn(){
+       // true means it is... and false means it is not.
+       return this.decks.indexOf(this.deck);
+    };
     get isLand() {
       return this instanceof Land;
     }
     get isPrimal() {
       return this instanceof Primal;
-    }
+    };
     onclick() {
       if( !this.used ) {
-        if( turnManager.turnNumber % 2 === this.decks.indexOf(this.deck)) {
+        if( turnManager.turnNumber % 2 === this.isDecksTurn) {
           if ( this.manaManager.mana >= (this.manaCost === "N/A" ? 0 : this.manaCost) && !this.isLand ) {
-            this.toggleSelected();
             if( this instanceof Primal ) {
               enemyWins();
             } else if (!this.selected) {
@@ -137,22 +140,21 @@
               this.deck.disableEnemyDeck();
               this.deck.selectedCardID = -1;
             };
+            this.toggleSelected();
           };
-        } else if ( turnManager.turnNumber % 2 === Number(!this.decks.indexOf(this.deck)) ) {
+        } else if ( turnManager.turnNumber % 2 === Number(!this.isDecksTurn) && this.deck.enemyDeck.selectedCardID) {
           this.deck.selectedCardID = this.ID;
           this.deck.attack();
           this.deck.enemyDeck.OpenUp();
-          
-              this.toggleSelected();
         };
       };
-    }
+    };
     summon() {
       if(this.summonCost <= this.manaManager.mana && turnManager.turnNumber % 2 === this.decks.indexOf(this.deck)) {
         if( turnManager.turnNumber % 2 === this.decks.indexOf(this.deck) ) {
           if( confirm('Are you sure you want to summon this card?') ) {
             this.hand.manaManager.mana -= this.summonCost === "N/A" ? 0 : this.summonCost;
-            delete this.hand.cards[this.id];
+            delete this.hand.cards[this.ID]
             Object.assign(this, {
               inHand: false,
               used: true // summoning sickness
