@@ -4,7 +4,7 @@ class Stone extends Land {
   }
 };
 class Mountain extends Stone {
-  constructor(hand, deck){
+  constructor(hand=playerHand, deck=playerDeck){
     super(hand, deck, "Mountain");
   }
 };

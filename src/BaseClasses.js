@@ -7,28 +7,29 @@
     }
   }
   class Deck {
-    constructor(isHand, manaManager){
+    constructor(isHand, manaManager, weights){
       Object.assign(this, {
         cards: Object.setPrototypeOf({}, null),
         currentId: 1,
         isHand: isHand,
         manaManager: manaManager,
         enemy: [],
-        selectedCardID: -1
+        selectedCardID: -1,
+        weights: weights ? expandWeights(weights) : undefined
       });
       Object.defineProperty(this.cards, 0, {
         value: [],
         writable: false
       });
       if(manaManager){
-       this.hand = this.isHand ? this : this.manaManager.deck
-       this.deck = this.isHand ? this.manaManager.deck : this
+       this.hand = this.isHand ? this : this.manaManager.deck;
+       this.deck = this.isHand ? this.manaManager.deck : this;
       }
     }
-    addCardFromWeights(weights){
-      var newCard = getRandomItem(weights)
+    addCardFromWeights(){
+      var newCard = getRandomItem(this.weights)
       this.addCards(new newCard(this.hand, this.deck))
-      weights.splice(weights.indexOf(newCard),1)
+      this.weights.splice(this.weights.indexOf(newCard),1)
     }
     get selectedCard(){
       return this.cards[this.selectedCardID]
@@ -84,7 +85,7 @@
     };
     removeCards(...cards){
       cards.forEach( (card) => {
-        delete this.cards[card.ID];
+        this.cards[card.ID] = [];
       });
     }
     Lockdown(...cards){

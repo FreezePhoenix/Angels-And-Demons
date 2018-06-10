@@ -111,8 +111,6 @@
       </table>
     </div>
     <script>
-      enemyWeights = expandWeights(enemyWeights);
-      playerWeights = expandWeights(playerWeights);
       const turnManager = new TurnManager
       function getRandomItem(array){
         return array[Math.floor(Math.random()*array.length)]
@@ -122,10 +120,10 @@
         turnManager.nextTurn()
         if( turnManager.turnNumber % 2 === 0 ) {
           playerManaManager.manaGain = playerManaManager.manaPerTurn
-          playerHand.addCardFromWeights(playerWeights)
+          playerHand.addCardFromWeights()
         } else if ( turnManager.turnNumber % 2 === 1 ) {
           enemyManaManager.manaGain = enemyManaManager.manaPerTurn
-          enemyHand.addCardFromWeights(enemyWeights)
+          enemyHand.addCardFromWeights()
         }
         Object.keys(playerDeck.cards).map(i=>playerDeck.cards[i].ID).forEach((cardID)=> {
           Object.assign(playerDeck.cards[cardID], {
@@ -158,16 +156,18 @@
       }
       var playerDeck = new Deck(false),
           enemyDeck = new Deck(false),
-          enemyHand = new Deck(true, new ManaManager(enemyDeck)),
-          playerHand = new Deck(true, new ManaManager(playerDeck)),
+          enemyHand = new Deck(true, new ManaManager(enemyDeck), enemyWeights),
+          playerHand = new Deck(true, new ManaManager(playerDeck), playerWeights),
           playerManaManager = playerHand.manaManager,
           enemyManaManager = enemyHand.manaManager;
+      Object.assign(enemyDeck, {
+        manaManager: enemyManaManager,
+        enemyDeck: playerDeck
+      });
       playerDeck.manaManager = playerManaManager;
-      enemyDeck.manaManager = enemyManaManager;
       playerDeck.enemyDeck = enemyDeck;
-      enemyDeck.enemyDeck = playerDeck;
       playerDeck.addCards(new Paladin);
-      playerHand.addCards(new Mountain(playerHand, playerDeck));
+      playerHand.addCards(new Mountain);
       enemyDeck.addCards(new HellHound);
       enemyHand.addCards(new Ravine(enemyHand, enemyDeck));
       enemyDeck.Lockdown()
