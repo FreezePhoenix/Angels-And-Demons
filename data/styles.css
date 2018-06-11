@@ -1,50 +1,49 @@
 body {
-        background-color: #222222
-      }
-      div {
-        display: inline-block;
-      }
-      .manaBar  {
-        height:20px;
-        background-color: Blue;
-        color: White;
-        text-align: center;
-        
-      }
-      .tagList {
-        width:100%;
-        margin: 4 auto;
-      }
-      .tagList * {
-        width: 20%; 
-        height:20px;
-        color: White;
-        padding: 2%;
-        border-radius:4px;
-        text-align: center;
-      }
-      .tagList .manaCost {
-        background-color: MediumBlue;
-      }
-      .tagList .attack {
-        background-color: DarkRed;
-      }
-      .tagList .manaPerRound {
-        background-color: Blue
-      }
-      table {
-        display: inline-table;
-        width: 100%;
-      }
-      .health {
-         height: 20px;
-         text-align: center;
-      }
-      table#playerHand, table#playerUnits, table#enemyUnits, table#enemyHand, .card {
-        text-align: center;
-        width: 100%;
-      }
-      #turnStats, #turn {
-        text-color: White;
-        text-align: center;
-      }
+  background-color: #222222
+}
+div {
+  display: inline-block;
+}
+.manaBar  {
+   height:20px;
+   background-color: Blue;
+   color: White;
+   text-align: center;        
+}
+.tagList {
+  width:100%;
+  margin: 4 auto;
+}
+.tagList * {
+  width: 20%; 
+  height:20px;
+  color: White;
+  padding: 2%;
+  border-radius:4px;
+  text-align: center;
+}
+.tagList .manaCost {
+   background-color: MediumBlue;
+}
+.tagList .attack {
+  background-color: DarkRed;
+}
+.tagList .manaPerRound {
+  background-color: Blue
+}
+table {
+  display: inline-table;
+  width: 100%;
+}
+.health {
+  height: 20px;
+  text-align: center;
+}
+table#playerHand, table#playerUnits, table#enemyUnits, table#enemyHand, .card {
+  text-align: center;
+  width: 100%;
+}
+#turnStats, #turn {
+  color: White;
+  text-align: center;
+}
