@@ -4,4 +4,4 @@ var enemyWeights = [
   [Ravine, 10],
   [HellHound, 8],
   [ThornKnight, 8]
-]
+];

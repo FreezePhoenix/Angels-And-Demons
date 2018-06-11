@@ -1,6 +1,7 @@
 <html>
   <head>
     <script src="./lib/vue.js"></script>
+    <script src="./src/components.js"></script>
     <title>Angels & Demons</title>
     <link rel="stylesheet" href="./data/styles.css">
     <script src="./src/BaseClasses.js"></script>
@@ -32,15 +33,7 @@
             <table id="playerHand">
               <tr v-for="item of playerHand">
                 <td>
-                  <div class="card">
-                    <div class="name" v-bind:style="{'color': item.summonCost >= playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" class="cardName" :onclick="'playerHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
-                    <br>
-                    <div class="tagList">
-                      <div class="manaCost"> {{ item.summonCost }} </div>
-                      <div class="attack"> {{ item.attack }} </div>
-                      <div class="manaPerRound"> {{ item.manaPerTurn }} </div>
-                    </div>
-                  </div>
+                  <card v-bind:item="item" v-bind:turn-manager="turnManager" v-bind:colors="colors"></card>
                 </td>
               </tr>
             </table>
@@ -49,19 +42,7 @@
             <table id="playerUnits">
               <tr v-for="item in playerCards">
                 <td>
-                  <div class="card">
-                    <div class="tag" v-bind:style="{'cursor': !item.locked & !item.used & !(item.summonCost > playerMana.mana) & !item.isLand & !(turnManager.turnNumber % 2) ? 'pointer' : 'default', 'width': '100px', 'color': item.locked || item.used || item.summonCost > playerMana.mana || item.isLand ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" :onclick="'playerDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
-                    <br v-if="item.health">
-                    <div v-if="item.health" style="background-color:black; width:100px; height:20px">
-                      <div v-bind:style="item.style" align="center"> {{item.health}} </div>
-                    </div>
-                    <br>
-                    <div class="tagList">
-                      <div class="manaCost"> {{ item.manaCost }} </div>
-                      <div class="attack"> {{ item.attack }} </div>
-                      <div class="manaPerRound"> {{ item.manaPerTurn }} </div>
-                    </div>
-                  </div>
+                  <card :item="item" :turn-manager="turnManager" :colors="colors"></card>
                 </td>
               </tr>
             </table>
@@ -74,19 +55,7 @@
             <table id="enemyUnits">
               <tr v-for="item in enemyCards">
                 <td>
-                  <div class="card">
-                    <div class="tag" v-bind:style="{'cursor': !item.locked & !item.used & !(item.summonCost > playerMana.mana) & !item.isLand & (turnManager.turnNumber % 2) ? 'pointer' : 'default', width:'100px',color: item.locked  || item.used || item.summonCost > enemyMana.mana || item.isLand ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" :onclick="'enemyDeck.cards['+item.ID+'].onclick()'" align="center">{{item.name}}</div>
-                    <br v-if="item.health">
-                    <div v-if="item.health" style="background-color:black; width:100px;" class="health">
-                      <div v-bind:style="item.style" class="health"> {{item.health}} </div>
-                    </div>
-                    <br>
-                    <div class="tagList">
-                      <div class="manaCost"> {{ item.manaCost }} </div>
-                      <div class="attack"> {{ item.attack }} </div>
-                      <div class="manaPerRound"> {{ item.manaPerTurn }} </div>
-                    </div>
-                  </div>
+                  <card v-bind:item="item" v-bind:turn-manager="turnManager" :colors="colors"></card>
                 <td>
               </tr>
             </table>
@@ -95,15 +64,7 @@
             <table id="enemyHand">
               <tr v-for="item in enemyHand">
                 <td>
-                  <div class="card">
-                    <div class="name" v-bind:style="{'width':'100%',color: item.nameColor,  'color': item.summonCost >= playerMana.mana ? darkerColors[item.nameColor] : (item.selected ? lighterColors[item.nameColor] : item.nameColor)}" class="cardName" :onclick="'enemyHand.cards['+item.ID+'].summon()'">{{item.name}}</div>
-                    <br>
-                    <div class="tagList">
-                      <div class="manaCost"> {{ item.summonCost }} </div>
-                      <div class="attack"> {{ item.attack }} </div>
-                      <div class="manaPerRound"> {{ item.manaPerTurn }} </div>
-                    </div>
-                  </div>
+                  <card v-bind:item="item" v-bind:turn-manager="turnManager" v-bind:colors="colors"></card>
                 </td>
               </tr>
             </table>
@@ -119,43 +80,45 @@
       function nextTurn(){
         turnManager.nextTurn()
         if( turnManager.turnNumber % 2 === 0 ) {
-          playerManaManager.manaGain = playerManaManager.manaPerTurn
-          playerHand.addCardFromWeights()
+          playerManaManager.manaGain = playerManaManager.manaPerTurn;
+          playerHand.addCardFromWeights();
         } else if ( turnManager.turnNumber % 2 === 1 ) {
-          enemyManaManager.manaGain = enemyManaManager.manaPerTurn
-          enemyHand.addCardFromWeights()
-        }
-        Object.keys(playerDeck.cards).map(i=>playerDeck.cards[i].ID).forEach((cardID)=> {
+          enemyManaManager.manaGain = enemyManaManager.manaPerTurn;
+          enemyHand.addCardFromWeights();
+        };
+        playerDeck.ArrayOfCardIDs.forEach( (cardID) => {
           Object.assign(playerDeck.cards[cardID], {
             used: false,
             selected: false,
             locked: false
-          })
-          playerDeck.IDofCardSelected = -1
-        })
-        Object.keys(enemyDeck.cards).map(i=>enemyDeck.cards[i].ID).forEach((cardID)=> {
-          enemyDeck.cards[cardID].used = false
-          enemyDeck.cards[cardID].selected = false
-          enemyDeck.cards[cardID].locked = false
-          enemyDeck.IDofCardSelected = -1
-        })
-      }
+          });
+        });
+        playerDeck.selectedCardID = -1;
+        enemyDeck.selectedCardID = -1;
+        enemyDeck.ArrayOfCardIDs.forEach( (cardID) => {
+          Object.assign(enemyDeck.cards[cardID], {
+            used: false,
+            selected: false,
+            locked: false
+          });
+        });
+      };
       const DarkerColors = {
-        "#DFB720": "#BD5000",
+        "#DFB720": "#BF5700",
         "#B0C4DE": "#90A4CE",
         "#C0C0C0": "#A0A0A0",
         "#DD00DD": "#BB00BB",
-        "#DF5F30": "#FF7F50"
+        "#DF5F30": "#BF3F10"
       },
            LighterColors = {
-        "#DFB720": "FFD940",
+        "#DFB720": "#FFD940",
         "#B0C4DE": "#D0E4FE",
         "#C0C0C0": "#E0E0E0",
-        "#DD00DD": "#FF00FF ",
-        "#DF5F30": "#BF3F10"
+        "#DD00DD": "#FD00FD ",
+        "#DF5F30": "#FF7F50"
       }
-      var playerDeck = new Deck(false),
-          enemyDeck = new Deck(false),
+      var playerDeck = new Deck(false, null, playerWeights),
+          enemyDeck = new Deck(false, null, enemyWeights),
           enemyHand = new Deck(true, new ManaManager(enemyDeck), enemyWeights),
           playerHand = new Deck(true, new ManaManager(playerDeck), playerWeights),
           playerManaManager = playerHand.manaManager,
@@ -166,28 +129,31 @@
       });
       playerDeck.manaManager = playerManaManager;
       playerDeck.enemyDeck = enemyDeck;
-      playerDeck.addCards(new Paladin);
-      playerHand.addCards(new Mountain);
-      enemyDeck.addCards(new HellHound);
-      enemyHand.addCards(new Ravine(enemyHand, enemyDeck));
+      playerDeck.addCardFromWeights();
+      playerHand.addCardFromWeights();
+      enemyDeck.addCardFromWeights();
+      enemyHand.addCardFromWeights();
       enemyDeck.Lockdown()
       
       new Vue({
         el: "#game",
         data: {
-            playerCards: playerDeck.cards,
-            enemyCards: enemyDeck.cards,
-            playerHand: playerHand.cards,
-            enemyHand: enemyHand.cards,
+          playerCards: playerDeck.cards,
+          enemyCards: enemyDeck.cards,
+          playerHand: playerHand.cards,
+          enemyHand: enemyHand.cards,
 
-            playerMana: playerManaManager,
-            enemyMana: enemyManaManager,
-
-            darkerColors: DarkerColors,
-            lighterColors: LighterColors,
-            turnManager: turnManager
+          playerMana: playerManaManager,
+          enemyMana: enemyManaManager,
+          colors: {
+            DarkerColors: DarkerColors,
+            LighterColors: LighterColors
+          },
+          
+          turnManager: turnManager
         }
       });
+      nextTurn();
     </script>
   </body>
 </html>

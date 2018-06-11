@@ -4,4 +4,4 @@ var playerWeights = [
   [Mountain, 10],
   [Paladin, 8],
   [Priest, 8]
-]
+];
