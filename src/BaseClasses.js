@@ -6,6 +6,26 @@ class TurnManager {
     this.turnNumber++;
   };
 };
+class Effect {
+  constructor(value, turns, name, netValueWhenDone) {
+    Object.assign(this, {
+      value: value,
+      turns: turns,
+      name: name,
+      netValueWhenDone: netValueWhenDone
+    });
+  }
+  apply(card) {
+    card.activeEffects[this.name] = {}
+    Object.assign(card.activeEffects[this.name], {
+       value: this.value,
+       turns: this.turns,
+       netValueWhenDone: this.netValueWhenDone,
+       remainingTurns: this.turns,
+       name: this.name
+    })
+  }
+}
 class Deck {
   constructor(isHand, manaManager, weights) {
     var cards = {}
@@ -23,8 +43,22 @@ class Deck {
     };
   };
   sealCards() {
-    Object.seal(this.cards)
-  }
+    Object.seal(this.cards);
+  };
+  updateEffects() {
+    this.cards.forEach( (card) => {
+      Object.values(card.activeEffects).forEach( (effect) => {
+        let isNew = effect.turns === effect.remainingTurns
+        if( isNew ) {
+          card[effect.name] += effect.value;
+        } else if ( effect.remainingTurns === 0 ) {
+          card[effect.name] -= effect.value - effect.netValueWhenDone;
+          delete card.activeEffects[effect.name]
+        };
+        effect.remainingTurns--;
+      });
+    });
+  };
   addCardFromWeights() {
     var newCard = getRandomItem(this.weights);
     this.addCards(new newCard(this.hand, this.deck));
@@ -58,12 +92,17 @@ class Deck {
       yourCard = this.selectedCard;
 
     if (yourCardID + 1 && opponentCardID + 1 && !opponentCard.used && !yourCard.isLand && !yourCard.isPrimal) {
-      opponentCard.health -= yourCard.attack;
-      yourCard.health -= opponentCard.attack;
+      opponentCard.health -= (yourCard.attack === "N/A" ? 0 : yourCard.attack);
+      yourCard.health -= (opponentCard.attack === "N/A" ? 0 : yourCard.attack);
       Object.assign(opponentCard, {
         used: true,
         selected: false
       });
+      if( opponentCard.effects ) {
+        Object.values(opponentCard.effects).forEach( (item) => {
+          item.apply(yourCard)
+        })
+      }
       this.enemyDeck.selectedCardID = -1;
       this.selectedCardID = -1;
       this.enemyDeck.manaManager.mana -= opponentCard.manaCost;
@@ -85,7 +124,6 @@ class Deck {
   };
   removeCards(...cards) {
     cards.forEach((card) => {
-       console.log(card.ID)
        this.cards[card.ID].propogate(new BlankCard);
     });
   };
@@ -120,7 +158,8 @@ class Card {
       decks: [playerDeck, enemyDeck],
       selected: false,
       locked: false,
-      used: false
+      used: false,
+      activeEffects: {}
     });
   };
   copy() {
@@ -157,7 +196,7 @@ class Card {
             this.deck.selectedCardID = -1;
           };
         };
-      } else if (!this.isDecksTurn && this.deck.enemyDeck.selectedCardID) {
+      } else if (!this.isDecksTurn && this.deck.enemyDeck.selectedCardID + 1) {
         this.deck.selectedCardID = this.ID;
         this.deck.attack();
         this.deck.enemyDeck.OpenUp();
@@ -205,7 +244,7 @@ class BlankCard extends Card {
 }
 class ManaManager {
   constructor(deck) {
-    this.mana = 20;
+    this.mana = 0;
     this.deck = deck;
   };
   get maxMana() {

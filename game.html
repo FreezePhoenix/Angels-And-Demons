@@ -8,6 +8,7 @@
     <script src="./src/Dark.js"></script>
     <script src="./src/Light.js"></script>
     <script src="./src/Land.js" ></script>
+    <script src="./src/Crippler.js"></script>
     <script src="./data/DarkHand.js"></script>
     <script src="./data/LightHand.js"></script>
     <script src="./src/expandWeights.js"></script>
@@ -82,10 +83,11 @@
         turnManager.nextTurn()
         if( turnManager.turnNumber % 2 === 0 ) {
           playerManaManager.manaGain = playerManaManager.manaPerTurn;
-          playerHand.addCardFromWeights();
+          try{playerHand.addCardFromWeights()}catch(e){};
+          playerDeck.updateEffects()
         } else if ( turnManager.turnNumber % 2 === 1 ) {
           enemyManaManager.manaGain = enemyManaManager.manaPerTurn;
-          enemyHand.addCardFromWeights();
+          try{enemyHand.addCardFromWeights()}catch(e){};
         };
         playerDeck.ArrayOfCardIDs.forEach( (cardID) => {
           Object.assign(playerDeck.cards[cardID], {
@@ -130,10 +132,6 @@
       });
       playerDeck.manaManager = playerManaManager;
       playerDeck.enemyDeck = enemyDeck;
-      playerDeck.addCardFromWeights();
-      playerHand.addCardFromWeights();
-      enemyDeck.addCardFromWeights();
-      enemyHand.addCardFromWeights();
       enemyDeck.Lockdown()
       
       new Vue({
@@ -154,6 +152,10 @@
           turnManager: turnManager
         }
       });
+      playerDeck.sealCards();
+      playerHand.sealCards();
+      enemyDeck.sealCards();
+      enemyHand.sealCards();
       nextTurn();
     </script>
   </body>

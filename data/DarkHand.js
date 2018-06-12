@@ -3,5 +3,6 @@ var enemyWeights = [
   [Demon, 3],
   [Ravine, 10],
   [HellHound, 8],
-  [ThornKnight, 8]
+  [ThornKnight, 8],
+  [DarkAgent, 8]
 ];
