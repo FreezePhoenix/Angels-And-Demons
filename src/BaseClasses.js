@@ -8,23 +8,23 @@ class TurnManager {
 };
 class Deck {
   constructor(isHand, manaManager, weights) {
+    var cards = {}
     Object.assign(this, {
-      cards: {},
+      cards: Array(10).fill().map( () => new BlankCard ),
       currentId: 1,
       isHand: isHand,
       manaManager: manaManager,
       selectedCardID: -1,
       weights: weights ? expandWeights(weights) : undefined
     });
-    Object.defineProperty(this.cards, 0, {
-      value: [],
-      writable: true
-    });
     if (manaManager) {
       this.hand = this.isHand ? this : this.manaManager.deck;
       this.deck = this.isHand ? this.manaManager.deck : this;
     };
   };
+  sealCards() {
+    Object.seal(this.cards)
+  }
   addCardFromWeights() {
     var newCard = getRandomItem(this.weights);
     this.addCards(new newCard(this.hand, this.deck));
@@ -75,16 +75,18 @@ class Deck {
     };
   };
   addCards(...cards) {
-    cards.forEach((card) => {
+    var emptyCardIDs = this.cards.filter( item => item.name === null ).map( item => this.cards.indexOf(item));
+    cards.forEach( (card) => {
       this.isHand ? card.inHand = true : card.inHand = false;
-      card.ID = this.currentId;
-      this.cards[this.currentId] = card;
-      this.currentId++;
+      card.ID = emptyCardIDs[0];
+      this.cards[emptyCardIDs[0]].propogate(card);
+      emptyCardIDs.shift();
     });
   };
   removeCards(...cards) {
     cards.forEach((card) => {
-      delete this.cards[card.ID];
+       console.log(card.ID)
+       this.cards[card.ID].propogate(new BlankCard);
     });
   };
   Lockdown(...cards) {
@@ -120,10 +122,13 @@ class Card {
       locked: false,
       used: false
     });
-  }
+  };
+  copy() {
+    return Object.setPrototypeOf(Object.assign({}, this), this.__proto__);
+  };
   get indexInDecks() {
-    return this.decks.indexOf(this.deck)
-  }
+    return this.decks.indexOf(this.deck);
+  };
   get isDecksTurn() {
     // true means it is... and false means it is not.
     return (turnManager.turnNumber % 2 === this.decks.indexOf(this.deck));
@@ -159,16 +164,20 @@ class Card {
       };
     };
   };
+  propogate(card) {
+    Object.assign(this, card);
+    Object.setPrototypeOf(this, card.__proto__)
+  }
   summon() {
     if (this.summonCost <= this.manaManager.mana && turnManager.turnNumber % 2 === this.decks.indexOf(this.deck)) {
       if (confirm('Are you sure you want to summon this card?')) {
         this.hand.manaManager.mana -= this.summonCost === "N/A" ? 0 : this.summonCost;
-        delete this.hand.cards[this.ID];
         Object.assign(this, {
           inHand: false,
           used: true // summoning sickness
         });
-        this.deck.addCards(this);
+        this.deck.addCards(this.copy());
+        this.hand.removeCards(this);
       };
     };
   };
@@ -189,6 +198,11 @@ class Card {
     return this.ID;
   };
 };
+class BlankCard extends Card {
+  constructor() {
+    super(null,null,null,null,null,null,null,{manaManager:null},null,null)
+  }
+}
 class ManaManager {
   constructor(deck) {
     this.mana = 20;
