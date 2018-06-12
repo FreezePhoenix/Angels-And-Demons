@@ -12,9 +12,9 @@ Vue.component('card', {
                  </div> 
                  <br> 
                  <div class="tagList"> 
-                   <div class="manaCost"> {{ item.inHand ? item.summonCost : item.manaCost }} </div>
-                   <div class="attack"> {{ item.attack }} </div> 
-                   <div class="manaPerRound"> {{ item.manaPerTurn }} </div> 
+                   <div class="manaCost" :title="(item.inHand ? 'Summon cost: ' + item.summonCost : 'Usage cost' + item.manaCost)">-{{ item.inHand ? item.summonCost : item.manaCost }}M</div>
+                   <div class="attack" :title="'Attack: '+item.attack">{{ item.attack }}ATCK</div> 
+                   <div class="manaPerRound" :title="'Mana per turn: '+item.manaPerTurn">+{{ item.manaPerTurn }}M</div> 
                  </div> 
                </div>`,
    'props': ['item', 'turnManager', 'colors']
