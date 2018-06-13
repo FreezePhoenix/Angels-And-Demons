@@ -162,6 +162,17 @@ class Card {
       activeEffects: {}
     });
   };
+  discard() {
+    if( this.isDecksTurn ) {
+      if( confirm("Are you sure you wish to discard this card?") ) {
+        if( this.inHand ) {
+          this.hand.removeCards(this);
+        } else {
+          this.deck.removeCards(this);
+        };
+      };
+    };
+  };
   copy() {
     return Object.setPrototypeOf(Object.assign({}, this), this.__proto__);
   };

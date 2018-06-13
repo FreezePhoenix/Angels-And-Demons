@@ -22,4 +22,4 @@ class Lamp extends Crippler {
       attack: new Effect(-3, 3, "attack", -5)
     }, 20, 10);
   };
-}
+};

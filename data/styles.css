@@ -4,11 +4,17 @@ body {
 div {
   display: inline-block;
 }
+.discard, .summonOrAttack {
+  color: White;
+}
 .manaBar  {
    height:20px;
    background-color: Blue;
    color: White;
    text-align: center;        
+}
+.name {
+  width: 80%;
 }
 .tagList {
   width:100%;
@@ -29,7 +35,7 @@ div {
   background-color: DarkRed;
 }
 .tagList .manaPerRound {
-  background-color: Blue
+  background-color: Blue;
 }
 table {
   display: inline-table;
@@ -39,7 +45,11 @@ table {
   height: 20px;
   text-align: center;
 }
-table#playerHand, table#playerUnits, table#enemyUnits, table#enemyHand, .card {
+#playerHand, #playerUnits, #enemyUnits, #enemyHand  {
+  width: 20%;
+  text-align: center;
+}
+.card {
   text-align: center;
   width: 100%;
 }

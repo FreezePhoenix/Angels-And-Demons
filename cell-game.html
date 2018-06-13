@@ -13,33 +13,42 @@
     <script src="./data/LightHand.js"></script>
     <script src="./src/expandWeights.js"></script>
   </head>
-  <div id="sandbox"></div>
+  <style>
+    #game {
+      display: grid;
+      grid-template-columns: 20% 20% 20% 20% 20%;
+      grid-gap: 10px;
+    }
+    #playerHand, #playerUnits, #turnStats, #enemyUnits, #enemyHand {
+      display: grid;
+      grid-template-columns: 100%;
+    }
+  </style>
   <body>
-    <div id="game" style="display:block">
+    <div id="game">
           <div style="background-color:#FFFFFF; width:100px;">
-            <div class="manaBar" :style="{height:'20px',width: playerMana.manaBarWidth}"> {{ playerMana.mana }} </div>
+              <div class="manaBar" :style="{height:'20px',width: playerMana.manaBarWidth}"> {{ playerMana.mana }} </div>
           </div>
+          <div></div><div></div><div></div>
           <div style="float:right; background-color:#FFFFFF; width:100px;">
-            <div class="manaBar" :style="{'float':'right', 'width': enemyMana.manaBarWidth}"> {{ enemyMana.mana }} </div>
+              <div class="manaBar" :style="{'float':'right', width: enemyMana.manaBarWidth}"> {{ enemyMana.mana }} </div>
           </div>
-          <br><br>
           <div id="playerHand" >
-             <card v-for="item in playerHand" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors"></card>
+             <card v-for="item of playerHand" :item="item" :turn-manager="turnManager" :colors="colors"></card>
           </div>
           <div id="playerUnits">
-                <card v-for="item in playerCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors"></card>
+              <card v-for="item in playerCards" :item="item" :turn-manager="turnManager" :colors="colors"></card>
           </div>
           <div id="turnStats">
             <h3 id="turn"> Turn: {{ turnManager.turnNumber % 2 ? "Demons" : "Angels" }} </h3>
             <button onclick="nextTurn()">End turn.</button>
           </div>
           <div id="enemyUnits">
-            <card v-for="item in enemyCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors"></card>
+              <card v-for="item in enemyCards" :item="item" :turn-manager="turnManager" :colors="colors"></card>
           </div>
           <div id="enemyHand">
-            <card v-for="item in enemyHand" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors"></card>
+              <card v-for="item in enemyHand" :item="item" :turn-manager="turnManager" :colors="colors"></card>
           </div>
-      </table>
     </div>
     <script>
       const turnManager = new TurnManager
