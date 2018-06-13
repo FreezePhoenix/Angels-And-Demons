@@ -4,13 +4,11 @@ Vue.component('card', {
                   'background-color': item.selected ? 'LightGrey' : 'transparent'
                   }"> 
                  <div class="name">
-                   <div class="summonOrAttack" :style="{'cursor': !item.locked && !item.used && ( (item.inHand ? item.summonCost : item.manaCost) <= item.manaManager.mana) && (item.isDecksTurn) && (item.inHand ? true : !item.isLand) ? 'pointer' : 'default'}" :onclick="(item.indexInDecks ? 'enemy' : 'player') + (item.inHand ? 'Hand' : 'Deck')+ '.cards['+item.ID+']' + (item.inHand ? '.summon()' : '.onclick()')">
-                        {{ item.inHand ? "S" : (item.isLand? "" : "A") }}
-                   </div>
                    <div class="tag" :style="{
+                     'cursor': !item.locked && !item.used && ( (item.inHand ? item.summonCost : item.manaCost) <= item.manaManager.mana) && (item.isDecksTurn) && (item.inHand ? true : !item.isLand) ? 'pointer' : 'default',
                      'text-shadow': item.selected ? ('0 0 4px' + item.nameColor) : 'none',
                      'width': '100px',
-                     'color': (item.locked  || item.used || ( (item.inHand ? item.summonCost : item.manaCost) > item.manaManager.mana) || (item.isDecksTurn) && (item.inHand ? false : item.inHand)) ? (colors.DarkerColors[item.nameColor]) : ((item.selected) ? (colors.LighterColors[item.nameColor]) : (item.nameColor))}" align="center">
+                     'color': (item.locked  || item.used || ( (item.inHand ? item.summonCost : item.manaCost) > item.manaManager.mana) || (item.isDecksTurn) && (item.inHand ? false : item.inHand)) ? (colors.DarkerColors[item.nameColor]) : ((item.selected) ? (colors.LighterColors[item.nameColor]) : (item.nameColor))}" align="center" :onclick="(item.indexInDecks ? 'enemy' : 'player') + (item.inHand ? 'Hand' : 'Deck')+ '.cards['+item.ID+']' + (item.inHand ? '.summon()' : '.onclick()')">
                          {{ item.name }}
                    </div>
                    <div class="discard" :style="{'cursor': item.isDecksTurn ? 'pointer' : 'default' }" :onclick="(item.indexInDecks ? 'enemy' : 'player') + (item.inHand ? 'Hand' : 'Deck')+ '.cards['+item.ID+']' + '.discard()'"> D </div>
