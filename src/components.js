@@ -1,5 +1,8 @@
 Vue.component('card', {
-  'template': `<div class="card" v-if="item.name !== null"> 
+  'template': `<div class="card" v-if="item.name !== null" :style="{
+                  'border-radius': '4px',
+                  'background-color': item.selected ? 'LightGrey' : 'transparent'
+                  }"> 
                  <div class="name">
                    <div class="summonOrAttack" :style="{'cursor': !item.locked && !item.used && ( (item.inHand ? item.summonCost : item.manaCost) <= item.manaManager.mana) && (item.isDecksTurn) && (item.inHand ? true : !item.isLand) ? 'pointer' : 'default'}" :onclick="(item.indexInDecks ? 'enemy' : 'player') + (item.inHand ? 'Hand' : 'Deck')+ '.cards['+item.ID+']' + (item.inHand ? '.summon()' : '.onclick()')">
                         {{ item.inHand ? "S" : (item.isLand? "" : "A") }}

@@ -30,6 +30,7 @@ class Deck {
   constructor(isHand, manaManager, weights) {
     var cards = {}
     Object.assign(this, {
+      hasHadCardAdded: false,
       cards: Array(10).fill().map( () => new BlankCard ),
       currentId: 1,
       isHand: isHand,
@@ -93,7 +94,7 @@ class Deck {
 
     if (yourCardID + 1 && opponentCardID + 1 && !opponentCard.used && !yourCard.isLand && !yourCard.isPrimal) {
       opponentCard.health -= (yourCard.attack === "N/A" ? 0 : yourCard.attack);
-      yourCard.health -= (opponentCard.attack === "N/A" ? 0 : yourCard.attack);
+      yourCard.health -= (opponentCard.attack === "N/A" ? 0 : opponentCard.attack);
       Object.assign(opponentCard, {
         used: true,
         selected: false
@@ -111,9 +112,26 @@ class Deck {
           this.removeCards(card);
         };
       });
+      if( this.hasHadCardAdded && this.ArrayOfCards.every( card => (card instanceof BlankCard || card instanceof Land)) ) {
+        this.enemyDeck.win()
+      }
+    };
+  };
+  win() {
+    if(this === enemyDeck ) {
+      alert("Enemy wins!");
+    } else if ( this === playerDeck ) {
+      alert("Player wins!");
+    } else {
+      alert("Cat?")
     };
   };
   addCards(...cards) {
+    if( cards.some( (card) => {
+      return !(card instanceof Land) && !(card instanceof BlankCard)
+      })) {
+      this.hasHadCardAdded = true;
+    };
     var emptyCardIDs = this.cards.filter( item => item.name === null ).map( item => this.cards.indexOf(item));
     cards.forEach( (card) => {
       this.isHand ? card.inHand = true : card.inHand = false;
@@ -209,8 +227,8 @@ class Card {
         };
       } else if (!this.isDecksTurn && this.deck.enemyDeck.selectedCardID + 1) {
         this.deck.selectedCardID = this.ID;
-        this.deck.attack();
         this.deck.enemyDeck.OpenUp();
+        this.deck.attack();
       };
     };
   };
