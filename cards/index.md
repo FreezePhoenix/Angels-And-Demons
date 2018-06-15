@@ -1,6 +1,7 @@
-# Cards #
+# Cards
 
   The following is a list of card types:
   
-  - [Basic](./basic.md)
-  - [Primals](./primal.md)
+  - [Basic](./basic.html)
+  - [Primals](./primal.html)
+  - [Cripplers](./cippler.html)

@@ -125,6 +125,7 @@ class Deck {
     } else {
       alert("Cat?")
     };
+    gameOver = true;
   };
   addCards(...cards) {
     if( cards.some( (card) => {

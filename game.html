@@ -1,10 +1,10 @@
 <html>
   <head>
     <script src="./lib/vue.js"></script>
-    <script src="./src/components.js"></script>
     <title>Angels & Demons</title>
     <link rel="stylesheet" href="./data/styles.css">
     <script src="./src/BaseClasses.js"></script>
+    <script src="./src/components.js"></script>
     <script src="./src/Dark.js"></script>
     <script src="./src/Light.js"></script>
     <script src="./src/Land.js" ></script>
@@ -23,32 +23,33 @@
             <div class="manaBar" :style="{'float':'right', 'width': enemyMana.manaBarWidth}"> {{ enemyMana.mana }} </div>
           </div>
           <br><br>
-          <div id="playerHand" >
-             <card v-for="item in playerHand" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors"></card>
+          <div id="playerHand">
+             <card v-for="item in playerHand" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
           </div>
           <div id="playerUnits">
-                <card v-for="item in playerCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors"></card>
+                <card v-for="item in playerCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
           </div>
           <div id="turnStats">
             <h3 id="turn"> Turn: {{ turnManager.turnNumber % 2 ? "Demons" : "Angels" }} </h3>
-            <button onclick="nextTurn()">End turn.</button>
+            <button :onclick=" gameOver ? 'void(0)' : 'nextTurn()'">End turn.</button>
           </div>
-          <div id="enemyUnits">
-            <card v-for="item in enemyCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors"></card>
+          <div id="enemyUnits"  style="float:right;">
+            <card v-for="item in enemyCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
           </div>
-          <div id="enemyHand">
-            <card v-for="item in enemyHand" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors"></card>
+          <div id="enemyHand" style="float:right;">
+            <card v-for="item in enemyHand" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
           </div>
       </table>
     </div>
     <script>
-      const turnManager = new TurnManager
+      const turnManager = new TurnManager;
+      var gameOver = false;
       function getRandomItem(array){
         return array[Math.floor(Math.random()*array.length)]
-      }
+      };
       
       function nextTurn(){
-        turnManager.nextTurn()
+        turnManager.nextTurn();
         if( turnManager.turnNumber % 2 === 0 ) {
           playerManaManager.manaGain = playerManaManager.manaPerTurn;
           try{playerHand.addCardFromWeights()}catch(e){};
@@ -117,7 +118,8 @@
             LighterColors: LighterColors
           },
           
-          turnManager: turnManager
+          turnManager: turnManager,
+          gameOver: gameOver
         }
       });
       playerDeck.sealCards();
