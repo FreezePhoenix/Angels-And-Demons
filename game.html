@@ -33,10 +33,10 @@
             <h3 id="turn"> Turn: {{ turnManager.turnNumber % 2 ? "Demons" : "Angels" }} </h3>
             <button :onclick=" gameOver ? 'void(0)' : 'nextTurn()'">End turn.</button>
           </div>
-          <div id="enemyUnits"  style="float:right;">
+          <div id="enemyUnits">
             <card v-for="item in enemyCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
           </div>
-          <div id="enemyHand" style="float:right;">
+          <div id="enemyHand">
             <card v-for="item in enemyHand" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
           </div>
       </table>
