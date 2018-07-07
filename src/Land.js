@@ -3,13 +3,9 @@ class Stone extends Land {
     super(1, name, '#B0C4DE', deck.isHand, hand, deck);
   };
 };
-class Mountain extends Stone {
-  constructor(hand=playerHand, deck=playerDeck) {
-    super(hand, deck, "Mountain");
-  };
+function newMountain(hand=playerHand, deck=playerDeck) {
+    return new Stone(hand, deck, "Mountain");
 };
-class Ravine extends Stone {
-  constructor(hand=enemyHand, deck=enemyDeck) {
-    super(hand, deck, "Ravine");
-  };
+function newRavine(hand=enemyHand, deck=enemyDeck) {
+    return new Stone(hand, deck, "Ravine");
 };

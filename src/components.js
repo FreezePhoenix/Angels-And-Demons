@@ -1,10 +1,11 @@
 Vue.component('card', {
-  'template': `<div class="card" v-if="item.name !== null" :style="{
-                  'border-radius': '4px',
-                  'background-color': item.selected ? 'LightGrey' : 'transparent'
-                  }"> 
-                 <div class="name">
-                   <div class="tag" :style="{
+  'template': `<transition name="fade">
+                  <div class="card" v-if="item.name !== null" :style="{
+                    'border-radius': '4px',
+                    'background-color': item.selected ? 'LightGrey' : 'transparent'
+                    }"> 
+                   <div class="name">
+                     <div class="tag" :style="{
                      'cursor': !item.locked && !gameOver && !item.used && ( (item.inHand ? item.summonCost : item.manaCost) <= item.manaManager.mana) && (item.isDecksTurn) && (item.inHand ? true : !item.isLand) ? 'pointer' : 'default',
                      'text-shadow': item.selected ? ('0 0 4px' + item.nameColor) : 'none',
                      'width': '100px',
@@ -24,7 +25,8 @@ Vue.component('card', {
                    <div class="manaPerRound" :title="'Mana per turn: '+item.manaPerTurn">{{ item.manaPerTurn }}</div> 
                  </div> 
                </div>
-               <br v-if="item.name !== null">`,
+               <br v-if="item.name !== null">
+             </transition>`,
    'props': {
               'item': Card,
               'turnManager': TurnManager, 

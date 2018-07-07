@@ -62,7 +62,7 @@ class Deck {
   };
   addCardFromWeights() {
     var newCard = getRandomItem(this.weights);
-    this.addCards(new newCard(this.hand, this.deck));
+    this.addCards(newCard(this.hand, this.deck));
     this.weights.splice(this.weights.indexOf(newCard), 1);
   };
   get selectedCard() {
