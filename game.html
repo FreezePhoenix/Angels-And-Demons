@@ -14,8 +14,8 @@
     <script src="./src/expandWeights.js"></script>
   </head>
   <div id="sandbox"></div>
-  <body>
-    <div id="game" style="display:block">
+  <body style="position:absolute;width:100%">
+    <div id="game" style="display:block;position:absolute;width:100%" >
           <div style="background-color:#FFFFFF; width:100px;">
             <div class="manaBar" :style="{height:'20px',width: playerMana.manaBarWidth}"> {{ playerMana.mana }} </div>
           </div>
@@ -23,14 +23,14 @@
             <div class="manaBar" :style="{'float':'right', 'width': enemyMana.manaBarWidth}"> {{ enemyMana.mana }} </div>
           </div>
           <br><br>
-          <div id="playerHand">
+          <div id="playerHand" style="position:relative;">
              <transition-group name="list-complete1">
-               <card v-for="(item, index) in playerHandCards" :key="item.ID" :index="index" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
+               <card v-for="(item, index) in playerHandCards" v-if="item.name!==null" :key="item.UUID" :index="index" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
              </transition-group>
           </div>
           <div id="playerUnits">
-            <transition-group name="list-complete1">
-                <card v-for="item in playerDeckCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
+            <transition-group name="list-complete1" style="position:relative;">
+                <card v-for="item in playerDeckCards" v-if="item.name!==null" :key="item.UUID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
             </transition-group>
           </div>
           <div id="turnStats">
@@ -39,12 +39,12 @@
           </div>
           <div id="enemyUnits">
             <transition-group name="list-complete2">
-              <card v-for="item in enemyDeckCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
+              <card v-for="item in enemyDeckCards" v-if="item.name!==null" :key="item.UUID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
             </transition-group>
           </div>
           <div id="enemyHand">
             <transition-group name="list-complete2">
-              <card v-for="item in enemyHandCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
+              <card v-for="item in enemyHandCards" v-if="item.name!==null" :key="item.UUID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
             </transition-group>
           </div>
       </table>
@@ -132,19 +132,19 @@
         computed: {
           playerDeckCards: function(){
             let vm = this;
-            return vm.playerDeck.cards.filter(item=>item.name!==null)
+            return vm.playerDeck.cards
           },
           enemyDeckCards: function(){
             let vm = this;
-            return vm.enemyDeck.cards.filter(item=>item.name!==null)
+            return vm.enemyDeck.cards
           },
           enemyHandCards: function(){
             let vm = this;
-            return vm.enemyHand.cards.filter(item=>item.name!==null)
+            return vm.enemyHand.cards
           },
           playerHandCards: function(){
             let vm = this;
-            return vm.playerHand.cards.filter(item=>item.name!==null)
+            return vm.playerHand.cards
           }
         }
       });

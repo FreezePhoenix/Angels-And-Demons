@@ -1,87 +1,108 @@
 body {
-  background-color: #222222
+  background-color: #222
 }
 .card {
-  transition: all 1s 0.5s;
+  transition: all 1s .5s;
   display: inline-block;
+  text-align: center;
+  width: 100%
 }
-.list-complete1-leave-to {
-  transition: all 1s 0.0s;
+.card[data-health=false] {
+  height: 57
+}
+.card[data-health=true] {
+  height: 71
+}
+.list-complete1-leave-to[data-health=false],.list-complete1-leave-to[data-health=true] {
+  transition: all 1s 0s;
   opacity: 0;
+  height: 0;
   transform: translateX(-100%)
 }
 .list-complete1-enter {
-  transition: all 1s 0.5s;
+  transition: all 1s .5s;
   opacity: 0;
-  transform: translateX(-100%);
+  transform: translateX(-100%)
 }
-.list-complete1-leave-active, .list-complete2-leave-active{
+.list-complete1-leave-active,.list-complete2-leave-active {
+  transform: translateX(-100%)
   position: relative;
+  width: 20%
 }
-.list-complete2-leave-to {
-  transition: all 1s 0.0s;
+.list-complete2-enter,.list-complete2-leave-to {
+  transition: all 1s 0s;
   opacity: 0;
   transform: translateX(100%)
 }
+
 .list-complete2-enter {
-  transition: all 1s 0.5s;
-  opacity: 0;
-  transform: translateX(100%);
+  transition: all 1s .5s
 }
 div {
-  display: inline-block;
+  display: inline-block
 }
-.discard, .summonOrAttack {
-  color: White;
+.discard,.summonOrAttack {
+  color: #fff;
+  width: 15%;
+  height: 18px
 }
-.manaBar  {
-   height:20px;
-   background-color: Blue;
-   color: White;
-   text-align: center;        
+.discard {
+  float: right
+}
+.summonOrAttack {
+  float: left
+}
+.manaBar {
+  height: 20px;
+  background-color: #00f;
+  color: #fff;
+  text-align: center
+}
+.name>.tag {
+  clear: both
 }
 .name {
-  width: 80%;
+  width: 70%;
+  font-size: 15px
 }
 .tagList {
-  width:100%;
-  margin: 4 auto;
+  width: 100%;
+  margin: 4 auto
 }
 .tagList * {
-  width: 20%; 
-  height:20px;
-  color: White;
+  width: 20%;
+  color: #fff;
   padding: 2%;
-  border-radius:4px;
-  text-align: center;
+  border-radius: 4px
 }
 .tagList .manaCost {
-   background-color: MediumBlue;
+  background-color: #0000cd
 }
 .tagList .attack {
-  background-color: DarkRed;
+  background-color: #8b0000
 }
 .tagList .manaPerRound {
-  background-color: Blue;
+  background-color: #00f
 }
 table {
   display: inline-table;
-  width: 100%;
+  width: 100%
 }
-.health {
+.health,.tagList * {
   height: 20px;
-  text-align: center;
+  text-align: center
 }
-#playerHand, #playerUnits, #enemyUnits, #enemyHand  {
+#turnStats {
+  transition: all 1s 0s
+}
+#enemyHand,#enemyUnits,#playerHand,#playerUnits {
   width: 20%;
-  text-align: center;
+  text-align: center
 }
-.card {
-  text-align: center;
-  width: 100%;
-  height: auto;
+.card:not(.list-complete1-leave-active):not(.list-complete2-leave-active):not(.list-complete1-enter-active):not(.list-complete2-enter-active) {
+  transition: all .5s 0s
 }
-#turnStats, #turn {
-  color: White;
-  text-align: center;
+#turn,#turnStats {
+  color: #fff;
+  text-align: center
 }
