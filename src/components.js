@@ -1,6 +1,5 @@
 Vue.component('card', {
-  'template': `<transition name="fade">
-                  <div class="card" v-if="item.name !== null" :style="{
+  'template': `<div class="card" :key="item.UUID" :id="item.UUID" v-if="item.name !== null" :style="{
                     'border-radius': '4px',
                     'background-color': item.selected ? 'LightGrey' : 'transparent'
                     }"> 
@@ -24,10 +23,9 @@ Vue.component('card', {
                    <div class="attack" :title="'Attack: '+item.attack">{{ item.attack }}</div> 
                    <div class="manaPerRound" :title="'Mana per turn: '+item.manaPerTurn">{{ item.manaPerTurn }}</div> 
                  </div> 
-               </div>
-               <br v-if="item.name !== null">
-             </transition>`,
+               </div>`,
    'props': {
+              'index': Number,
               'item': Card,
               'turnManager': TurnManager, 
               'colors': Object,

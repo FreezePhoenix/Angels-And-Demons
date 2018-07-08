@@ -24,20 +24,24 @@
           </div>
           <br><br>
           <div id="playerHand">
-             <card v-for="item in playerHand" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
+             <transition-group name="list-complete" mode="in-out">
+               <card v-for="(item, index) in playerHandCards" :key="item.ID" :index="index" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
+             </transition-group>
           </div>
           <div id="playerUnits">
-                <card v-for="item in playerCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
+            <transition-group name="list-complete" mode="in-out">
+                <card v-for="item in playerDeckCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
+            <transition-group name="list-complete" mode="in-out">
           </div>
           <div id="turnStats">
             <h3 id="turn"> Turn: {{ turnManager.turnNumber % 2 ? "Demons" : "Angels" }} </h3>
             <button :onclick=" gameOver ? 'void(0)' : 'nextTurn()'">End turn.</button>
           </div>
           <div id="enemyUnits">
-            <card v-for="item in enemyCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
+            <card v-for="item in enemyDeckCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
           </div>
           <div id="enemyHand">
-            <card v-for="item in enemyHand" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
+            <card v-for="item in enemyHandCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
           </div>
       </table>
     </div>
@@ -106,10 +110,10 @@
       new Vue({
         el: "#game",
         data: {
-          playerCards: playerDeck.cards,
-          enemyCards: enemyDeck.cards,
-          playerHand: playerHand.cards,
-          enemyHand: enemyHand.cards,
+          playerDeck: playerDeck,
+          enemyDeck: enemyDeck,
+          playerHand: playerHand,
+          enemyHand: enemyHand,
 
           playerMana: playerManaManager,
           enemyMana: enemyManaManager,
@@ -120,6 +124,24 @@
           
           turnManager: turnManager,
           gameOver: gameOver
+        },
+        computed: {
+          playerDeckCards: function(){
+            let vm = this;
+            return vm.playerDeck.cards.filter(item=>item.name!==null)
+          },
+          enemyDeckCards: function(){
+            let vm = this;
+            return vm.enemyDeck.cards.filter(item=>item.name!==null)
+          },
+          enemyHandCards: function(){
+            let vm = this;
+            return vm.enemyHand.cards.filter(item=>item.name!==null)
+          },
+          playerHandCards: function(){
+            let vm = this;
+            return vm.playerHand.cards.filter(item=>item.name!==null)
+          }
         }
       });
       playerDeck.sealCards();

@@ -1,11 +1,22 @@
 body {
   background-color: #222222
 }
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+.card {
+  transition: all 1s 0.5s;
+  display: inline-block;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+.list-complete-leave-to {
+  transition: all 1s 0.0s;
   opacity: 0;
+  transform: translateX(-100%)
+}
+.list-complete-enter {
+  transition: all 1s 0.5s;
+  opacity: 0;
+  transform: translateX(-100%);
+}
+.list-complete-leave-active {
+  position: relative;
 }
 div {
   display: inline-block;
@@ -58,6 +69,7 @@ table {
 .card {
   text-align: center;
   width: 100%;
+  height: auto;
 }
 #turnStats, #turn {
   color: White;

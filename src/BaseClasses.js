@@ -1,3 +1,4 @@
+let UUID = 0
 class TurnManager {
   constructor() {
     this.turnNumber = -1;
@@ -180,6 +181,8 @@ class Card {
       used: false,
       activeEffects: {}
     });
+    this.UUID = UUID
+    UUID += 1
   };
   discard() {
     if( this.isDecksTurn ) {
