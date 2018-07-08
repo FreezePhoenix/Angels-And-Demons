@@ -24,12 +24,12 @@
           </div>
           <br><br>
           <div id="playerHand">
-             <transition-group name="list-complete">
+             <transition-group name="list-complete1">
                <card v-for="(item, index) in playerHandCards" :key="item.ID" :index="index" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
              </transition-group>
           </div>
           <div id="playerUnits">
-            <transition-group name="list-complete">
+            <transition-group name="list-complete1">
                 <card v-for="item in playerDeckCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
             </transition-group>
           </div>
@@ -38,12 +38,12 @@
             <button :onclick=" gameOver ? 'void(0)' : 'nextTurn()'">End turn.</button>
           </div>
           <div id="enemyUnits">
-            <transition-group name="list-complete">
+            <transition-group name="list-complete2">
               <card v-for="item in enemyDeckCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
             </transition-group>
           </div>
           <div id="enemyHand">
-            <transition-group name="list-complete">
+            <transition-group name="list-complete2">
               <card v-for="item in enemyHandCards" :key="item.ID" :item="item" :turn-manager="turnManager" :colors="colors" :game-over="gameOver"></card>
             </transition-group>
           </div>

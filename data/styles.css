@@ -5,18 +5,28 @@ body {
   transition: all 1s 0.5s;
   display: inline-block;
 }
-.list-complete-leave-to {
+.list-complete1-leave-to {
   transition: all 1s 0.0s;
   opacity: 0;
   transform: translateX(-100%)
 }
-.list-complete-enter {
+.list-complete1-enter {
   transition: all 1s 0.5s;
   opacity: 0;
   transform: translateX(-100%);
 }
-.list-complete-leave-active {
+.list-complete1-leave-active, .list-complete2-leave-active{
   position: relative;
+}
+.list-complete2-leave-to {
+  transition: all 1s 0.0s;
+  opacity: 0;
+  transform: translateX(100%)
+}
+.list-complete2-enter {
+  transition: all 1s 0.5s;
+  opacity: 0;
+  transform: translateX(100%);
 }
 div {
   display: inline-block;
