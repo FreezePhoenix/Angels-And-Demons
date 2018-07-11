@@ -2,9 +2,10 @@ body {
   background-color: #222
 }
 .card {
-  transition: all 1s .5s;
+  transition: all 0.5s .25s;
   display: inline-block;
   text-align: center;
+  margin-top: 10px;
   width: 100%
 }
 .card[data-health=false] {
@@ -13,30 +14,36 @@ body {
 .card[data-health=true] {
   height: 71
 }
-.list-complete1-leave-to[data-health=false],.list-complete1-leave-to[data-health=true] {
-  transition: all 1s 0s;
+.list-complete1-leave-to[data-health=false], .list-complete1-leave-to[data-health=true] {
+  transition: all 0.5s 0s;
   opacity: 0;
   height: 0;
   transform: translateX(-100%)
 }
+.list-complete2-leave-to[data-health=false], .list-complete2-leave-to[data-health=true] {
+  transition: all 0.5s 0s;
+  opacity: 0;
+  height: 0;
+  transform: translateX(100%)
+}
 .list-complete1-enter {
-  transition: all 1s .5s;
+  transition: all 0.5s .25s;
   opacity: 0;
   transform: translateX(-100%)
 }
-.list-complete1-leave-active,.list-complete2-leave-active {
+.list-complete1-leave-active, .list-complete2-leave-active {
   transform: translateX(-100%)
   position: relative;
   width: 20%
 }
-.list-complete2-enter,.list-complete2-leave-to {
-  transition: all 1s 0s;
+.list-complete2-enter {
+  transition: all 0.5s 0s;
   opacity: 0;
   transform: translateX(100%)
 }
 
 .list-complete2-enter {
-  transition: all 1s .5s
+  transition: all 0.5s .25s
 }
 div {
   display: inline-block
@@ -44,7 +51,7 @@ div {
 .discard,.summonOrAttack {
   color: #fff;
   width: 15%;
-  height: 18px
+  height: 20px
 }
 .discard {
   float: right
@@ -63,7 +70,7 @@ div {
 }
 .name {
   width: 70%;
-  font-size: 15px
+  font-size: 16px
 }
 .tagList {
   width: 100%;
@@ -92,17 +99,15 @@ table {
   height: 20px;
   text-align: center
 }
-#turnStats {
-  transition: all 1s 0s
-}
 #enemyHand,#enemyUnits,#playerHand,#playerUnits {
   width: 20%;
   text-align: center
 }
 .card:not(.list-complete1-leave-active):not(.list-complete2-leave-active):not(.list-complete1-enter-active):not(.list-complete2-enter-active) {
-  transition: all .5s 0s
+  transition: all .25s 0s
 }
 #turn,#turnStats {
   color: #fff;
-  text-align: center
+  text-align: center;
+  transition: all 1s 0s
 }

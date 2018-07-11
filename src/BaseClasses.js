@@ -136,10 +136,14 @@ class Deck {
     };
     var emptyCardIDs = this.cards.filter( item => item.name === null ).map( item => this.cards.indexOf(item));
     cards.forEach( (card) => {
+      console.log(emptyCardIDs);
       this.isHand ? card.inHand = true : card.inHand = false;
       card.ID = emptyCardIDs[0];
+      console.log(emptyCardIDs[0])
       this.cards[emptyCardIDs[0]].propogate(card);
+      console.log(emptyCardIDs[0])
       emptyCardIDs.shift();
+      console.log(emptyCardIDs[0])
     });
   };
   removeCards(...cards) {
@@ -242,15 +246,13 @@ class Card {
   }
   summon() {
     if (this.summonCost <= this.manaManager.mana && turnManager.turnNumber % 2 === this.decks.indexOf(this.deck)) {
-      if (confirm('Are you sure you want to summon this card?')) {
-        this.hand.manaManager.mana -= this.summonCost === "N/A" ? 0 : this.summonCost;
-        Object.assign(this, {
-          inHand: false,
-          used: true // summoning sickness
-        });
-        this.deck.addCards(this.copy());
-        this.hand.removeCards(this);
-      };
+      this.hand.manaManager.mana -= this.summonCost === "N/A" ? 0 : this.summonCost;
+      Object.assign(this, {
+        inHand: false,
+        used: true // summoning sickness
+      });
+      this.deck.addCards(this.copy());
+      this.hand.removeCards(this);
     };
   };
   toggleSelected() {

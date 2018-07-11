@@ -144,7 +144,7 @@
           },
           playerHandCards: function(){
             let vm = this;
-            return vm.playerHand.cards
+            return vm.playerHand.ArrayOfCards.sort( (a, b) => a.UUID - b.UUID )
           }
         }
       });
