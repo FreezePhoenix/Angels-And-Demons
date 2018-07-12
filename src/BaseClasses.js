@@ -279,7 +279,7 @@ class BlankCard extends Card {
 }
 class ManaManager {
   constructor(deck) {
-    this.mana = 0;
+    this.mana = 1;
     this.deck = deck;
   };
   get maxMana() {
@@ -312,6 +312,6 @@ class Primal extends Card {
 class Land extends Card {
   constructor(manaPerTurn, name, nameColor, inHand, hand, deck) {
     super(null, "N/A", nameColor, "N/A", name, deck.isHand, hand, deck, manaPerTurn);
-    this.summonCost = 0;
+    this.summonCost = 1;
   };
 };

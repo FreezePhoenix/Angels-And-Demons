@@ -99,9 +99,12 @@ table {
   height: 20px;
   text-align: center
 }
+.health div, .manaBar {
+  transition: all 0.5s 0s;
+}
 #enemyHand,#enemyUnits,#playerHand,#playerUnits {
   width: 20%;
-  text-align: center
+  text-align: center;
 }
 .card:not(.list-complete1-leave-active):not(.list-complete2-leave-active):not(.list-complete1-enter-active):not(.list-complete2-enter-active) {
   transition: all .25s 0s
